@@ -50,11 +50,11 @@ non-root).
 
 3. USABILITY
 
-MSIKLM is a pure command line application, however its keyboard control functionality is encapsulated
-such that it could easily be integrated into a graphical user interface. However, I neither wrote one
-for it nor I plan to do so. It is quite easy to use, and here is how to use it. It always has to be
-called with at least one argument, i.e. running it without one will result in an error. Here is an
-overview over the valid commands:
+MSIKLM is a pure command line application, however its keyboard illumination control functionality
+is encapsulated such that it could easily be integrated into a graphical user interface. However,
+I neither wrote one for it nor I plan to do so. It is quite easy to use, and here is how to use it.
+It always has to be called with at least one argument, i.e. running it without one will result in
+an error. Here is an overview over the valid commands:
 
 command                                               | valid arguments                                                                              | example
 ============================================================================================================================================================================================
@@ -65,7 +65,7 @@ sudo msiklm <color> <brightness>                      | color either one or thre
 sudo msiklm <color> <mode>                            | same as above                                                                                | sudo msiklm green,blue,red wave
 sudo msiklm <color> <brightness> <mode>               | same as above                                                                                | sudo msiklm green,blue,red high wave
 
-Additionally, there are three extra commands that might be useful if something does not work as expected:
+Additionally, there are three extra commands that might be useful if something does not work:
     msiklm help         -> shows the program's help
     sudo msiklm test    -> tests if a compatible keyboard is found
     sudo msiklm list    -> lists all found hid devices, this might be helpful if your keyboard is not detected by MSIKLM
@@ -73,30 +73,32 @@ Additionally, there are three extra commands that might be useful if something d
 
 4. AUTOSTART
 
-An important additional feature is the optional automatic autostart functionality since the keyboard
-will reset itself to its default color configuration whenever you reboot it or resume from standby.
-Hence, it is really useful to automatically reconfigure the keyboard to your configuration of choice.
-To do this, there is an extra script called 'autostart.sh' that can do this for you. This autostart
-functionality is two-fold: The first thing is to automatically configure the keyboard during system
-boot, the other one is to automatically configure it when resuming from standby. For the first one,
-the file /etc/rc.local (this is an initialization script that is called during system boot) will be
-modified such that MSIKLM will be called with your arguments of choice, i.e. the following line will
-be added to your /etc/rc.local:
+An important additional feature is the optional autostart functionality since the keyboard will
+reset itself to its default color configuration whenever you reboot it or resume from standby.
+Hence, it is really useful to automatically reconfigure the keyboard to your configuration of
+choice. To do this, there is an extra script called 'autostart.sh' that can do this for you. This
+autostart functionality is two-fold: The first thing is to automatically configure the keyboard
+during system boot, the other one is to automatically configure it when resuming from standby.
+For the first one, the file /etc/rc.local (this is an initialization script that is called during
+system boot) will be modified such that MSIKLM will be called with your arguments of choice, i.e.
+the following line will be added to your /etc/rc.local:
 
     /usr/local/bin/msiklm <your arguments>
 
-To configure the keyboard when resuming from standby, an additional script has to be created because
-/etc/rc.local will not be called here. Unluckily the scripts that will be needed depend on the current
-Linux/Ubuntu version. For the latest Ubuntu releases, the standby/wakeup scripts have to be placed in
-the directory /lib/systemd/system-sleep/ while for older versions probably /usr/lib/pm-utils/sleep.d/
-is the path of choice. Not only this, also the commands that you have to place in these scripts differ.
-To do both, modify /etc/rc.local and create a wakeup script in /lib/systemd/system-sleep/, run:
+To configure the keyboard when resuming from standby, an additional script has to be created
+because /etc/rc.local will not be called here. Unluckily the scripts that will be needed depend on
+the current Linux/Ubuntu version. For the latest Ubuntu releases, the standby/wakeup scripts have
+to be placed in the directory /lib/systemd/system-sleep/ while for older versions probably
+/usr/lib/pm-utils/sleep.d/ is the path of choice. Not only this, also the commands that you have to
+place in these scripts differ. To do both, modify /etc/rc.local and create a wakeup script in
+/lib/systemd/system-sleep/, run:
 
     ./autostart.sh <your arguments>
 
-Try if everything works by first rebooting your system and then try a standby and wakeup. If everything
-works, we are done here. If not, probably your Linux version is an older one, i.e. the script has to be
-placed in /usr/lib/pm-utils/sleep.d/ and has to be modified as well. So first move the script by
+Try if everything works by first rebooting your system and then try a standby and wakeup. If
+everything works, we are done here. If not, probably your Linux version is an older one, i.e. the
+script has to be placed in /usr/lib/pm-utils/sleep.d/ and has to be modified as well. So first move
+the script by
 
     sudo mv /lib/systemd/system-sleep/msiklm-wakeup.sh /usr/lib/pm-utils/sleep.d/99ZZ_msiklm-wakeup.sh
 
@@ -132,6 +134,7 @@ removes created wakeup scripts. If you want to use it, simply run:
 
 6. DEVELOPPER INFORMATION
 
-The source code is splitted into three files: The main application (main.c) that converts the input as well
-as a small library that contains the main features (msiklm.h and msiklm.c). It provides a simple C API and
-hence allows an easy integration into different programs like maybe a small graphical user interface.
+The source code is splitted into three files: The main application (main.c) that converts the input
+as well as a small library that contains the main features (msiklm.h and msiklm.c). It provides a
+simple C API and hence allows an easy integration into different programs like maybe a small
+graphical user interface.

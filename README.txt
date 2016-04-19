@@ -52,9 +52,9 @@ non-root).
 
 MSIKLM is a pure command line application, however its keyboard illumination control functionality
 is encapsulated such that it could easily be integrated into a graphical user interface. However,
-I neither wrote one for it nor I plan to do so. It is quite easy to use, and here is how to use it.
-It always has to be called with at least one argument, i.e. running it without one will result in
-an error. Here is an overview over the valid commands:
+I neither wrote one for it nor I plan to do so. It is quite easy to use, and here is how to use
+it. It always has to be called with at least one argument, i.e. running it without one will result
+in an error. Here is an overview over the valid commands:
 
 command                                               | valid arguments                                                                              | example
 ============================================================================================================================================================================================
@@ -89,16 +89,16 @@ To configure the keyboard when resuming from standby, an additional script has t
 because /etc/rc.local will not be called here. Unluckily the scripts that will be needed depend on
 the current Linux/Ubuntu version. For the latest Ubuntu releases, the standby/wakeup scripts have
 to be placed in the directory /lib/systemd/system-sleep/ while for older versions probably
-/usr/lib/pm-utils/sleep.d/ is the path of choice. Not only this, also the commands that you have to
-place in these scripts differ. To do both, modify /etc/rc.local and create a wakeup script in
+/usr/lib/pm-utils/sleep.d/ is the path of choice. Not only this, also the commands that you have
+to place in these scripts differ. To do both, modify /etc/rc.local and create a wakeup script in
 /lib/systemd/system-sleep/, run:
 
     ./autostart.sh <your arguments>
 
 Try if everything works by first rebooting your system and then try a standby and wakeup. If
 everything works, we are done here. If not, probably your Linux version is an older one, i.e. the
-script has to be placed in /usr/lib/pm-utils/sleep.d/ and has to be modified as well. So first move
-the script by
+script has to be placed in /usr/lib/pm-utils/sleep.d/ and has to be modified as well. So first
+move the script by
 
     sudo mv /lib/systemd/system-sleep/msiklm-wakeup.sh /usr/lib/pm-utils/sleep.d/99ZZ_msiklm-wakeup.sh
 
@@ -134,7 +134,7 @@ removes created wakeup scripts. If you want to use it, simply run:
 
 6. DEVELOPPER INFORMATION
 
-The source code is splitted into three files: The main application (main.c) that converts the input
-as well as a small library that contains the main features (msiklm.h and msiklm.c). It provides a
-simple C API and hence allows an easy integration into different programs like maybe a small
-graphical user interface.
+The source code is splitted into three files: The main application (main.c) that converts the
+input as well as a small library that contains the main features (msiklm.h and msiklm.c). It
+provides a simple C API and hence allows an easy integration into different programs like maybe
+a small graphical user interface.

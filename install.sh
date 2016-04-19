@@ -37,18 +37,26 @@ else
     exit 1
 fi
 
-# move 'msiklm' to '/usr/local/bin/msiklm' which also makes it callable via the msiklm command
-sudo mv -fv msiklm /usr/local/bin/msiklm
-sudo chmod 744 /usr/local/bin/msiklm
-echo "Installation of 'msiklm' finished successfully"
-sleep 2
+# install 'msiklm' to '/usr/local/bin/msiklm' which also makes it callable via the msiklm command
+make install
+if [ $? -eq 0 ]; then
+    echo "Installation of 'msiklm' finished successfully"
+    sleep 2
+else
+    echo "Installation of 'msiklm' failed"
+    exit 1
+fi;
 
 echo "Testing 'msiklm'..."
 sleep 1
 
 sudo msiklm test
+sleep 1
+
 if [ $? -eq 0 ]; then
     echo "To configure the keyboard run 'msiklm' with your configuartion of choice, for a list of valid commands run 'msiklm help'."
     echo "If you want to enable the autostart, run 'autostart.sh' with your configuartion of choice, to uninstall 'msiklm' run 'uninstall.sh'."
     echo "Thank you for using 'msiklm' and have fun with it! :-)"
+else
+    echo "Testing of 'msiklm' failed"
 fi

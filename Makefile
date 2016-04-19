@@ -19,7 +19,7 @@ HEADERS       = $(SRCPATH)msiklm.h
 SOURCES       = $(SRCPATH)main.c $(SRCPATH)msiklm.c
 OBJECTS       = main.o msiklm.o
 TARGET        = msiklm
-INSTALLTARGET = /usr/local/bin/$(TARGET)
+INSTALLPREFIX = /usr/local/bin
 
 
 ####### Build rules
@@ -38,10 +38,8 @@ delete: clean
 	-$(DEL_FILE) $(TARGET)
 
 install:
-	@if [ -f $(TARGET) ]; then\
-	    sudo mv -v $(TARGET) $(INSTALLTARGET);\
-	    sudo chmod 744 $(INSTALLTARGET);\
-	fi
+	@cp -v $(TARGET) $(INSTALLPREFIX)/$(TARGET)
+	@chmod 755 $(INSTALLPREFIX)/$(TARGET)
 
 ####### Compile
 

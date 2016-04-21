@@ -76,14 +76,15 @@ in an error. Here is an overview over the valid commands:
 
 |command                                               | valid arguments                                                                              | example                              |
 |------------------------------------------------------|----------------------------------------------------------------------------------------------|--------------------------------------|
-|sudo msiklm <color>                                   | none, off (equivalent to none), red, orange, yellow, green, sky, blue, purple, white         | sudo msiklm green                    |
-|sudo msiklm <color_left>,<color_middle>,<color_right> | same as single color (important: no space between the colors!)                               | sudo msiklm green,blue,red           |
-|sudo msiklm <mode>                                    | normal, gaming, breathe, demo, wave                                                          | sudo msiklm wave                     |
-|sudo msiklm <color> <brightness>                      | color either one or three values (comma-separated), brightness can be off, low, medium, high | sudo msiklm green high               |
-|sudo msiklm <color> <mode>                            | same as above                                                                                | sudo msiklm green,blue,red wave      |
-|sudo msiklm <color> <brightness> <mode>               | same as above                                                                                | sudo msiklm green,blue,red high wave |
+|sudo msiklm \<color\>                                   | none, off (equivalent to none), red, orange, yellow, green, sky, blue, purple, white         | sudo msiklm green                    |
+|sudo msiklm \<color_left\>,\<color_middle\>,\<color_right\> | same as single color (important: no space between the colors!)                               | sudo msiklm green,blue,red           |
+|sudo msiklm \<mode\>                                    | normal, gaming, breathe, demo, wave                                                          | sudo msiklm wave                     |
+|sudo msiklm \<color\> \<brightness\>                      | color either one or three values (comma-separated), brightness can be off, low, medium, high | sudo msiklm green high               |
+|sudo msiklm \<color\> \<mode\>                            | same as above                                                                                | sudo msiklm green,blue,red wave      |
+|sudo msiklm \<color\> \<brightness\> \<mode\>               | same as above                                                                                | sudo msiklm green,blue,red high wave |
 
 Additionally, there are three extra commands that might be useful if something does not work:
+
     msiklm help         -> shows the program's help
     sudo msiklm test    -> tests if a compatible keyboard is found
     sudo msiklm list    -> lists all found hid devices, this might be helpful if your keyboard is not detected by MSIKLM

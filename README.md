@@ -11,7 +11,7 @@ SteelSeries Engine can do using Windows.
 I tried to keep the external dependencies to a minimum level, however there are some unavoidable
 ones. These are:
 
- * GCC     - the C compliler
+ * GCC     - the C compiler
  * make    - the main build tool of the Linux world
  * LIBUSB  - MSIKLM needs to communicate with the keyboard, for this LIBUSB is required
 

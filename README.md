@@ -74,13 +74,13 @@ I neither wrote one for it nor I plan to do so. It is quite easy to use, and her
 it. It always has to be called with at least one argument, i.e. running it without one will result
 in an error. Here is an overview over the valid commands:
 
-|command                                               | valid arguments                                                                              | example                              |
-|------------------------------------------------------|----------------------------------------------------------------------------------------------|--------------------------------------|
-|sudo msiklm \<color\>                                   | none, off (equivalent to none), red, orange, yellow, green, sky, blue, purple, white         | sudo msiklm green                    |
+|command                                                     | valid arguments                                                                              | example                              |
+|------------------------------------------------------------|----------------------------------------------------------------------------------------------|--------------------------------------|
+|sudo msiklm \<color\>                                       | none, off (equivalent to none), red, orange, yellow, green, sky, blue, purple, white         | sudo msiklm green                    |
 |sudo msiklm \<color_left\>,\<color_middle\>,\<color_right\> | same as single color (important: no space between the colors!)                               | sudo msiklm green,blue,red           |
-|sudo msiklm \<mode\>                                    | normal, gaming, breathe, demo, wave                                                          | sudo msiklm wave                     |
-|sudo msiklm \<color\> \<brightness\>                      | color either one or three values (comma-separated), brightness can be off, low, medium, high | sudo msiklm green high               |
-|sudo msiklm \<color\> \<mode\>                            | same as above                                                                                | sudo msiklm green,blue,red wave      |
+|sudo msiklm \<mode\>                                        | normal, gaming, breathe, demo, wave                                                          | sudo msiklm wave                     |
+|sudo msiklm \<color\> \<brightness\>                        | color either one or three values (comma-separated), brightness can be off, low, medium, high | sudo msiklm green high               |
+|sudo msiklm \<color\> \<mode\>                              | same as above                                                                                | sudo msiklm green,blue,red wave      |
 |sudo msiklm \<color\> \<brightness\> \<mode\>               | same as above                                                                                | sudo msiklm green,blue,red high wave |
 
 Additionally, there are three extra commands that might be useful if something does not work:

@@ -47,7 +47,7 @@ the manual commands instead:
  * copy the built program to '/usr/local/bin/msiklm' and set its permissions
    ```
    sudo mv -fv msiklm /usr/local/bin/msiklm
-   sudo chmod 744 /usr/local/bin/msiklm
+   sudo chmod 755 /usr/local/bin/msiklm
    ```
 
  * test the connection

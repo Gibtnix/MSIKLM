@@ -38,7 +38,7 @@ else
 fi
 
 # install 'msiklm' to '/usr/local/bin/msiklm' which also makes it callable via the msiklm command
-make install
+sudo make install
 if [ $? -eq 0 ]; then
     echo "Installation of 'msiklm' finished successfully"
     sleep 2

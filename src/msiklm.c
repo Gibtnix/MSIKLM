@@ -191,7 +191,7 @@ void enumerate_hid()
             printf("    Device Vendor ID:        %i\n", dev->vendor_id);
             printf("    Device Product ID:       %i\n", dev->product_id);
             printf("    Device Serial Number:    %S\n", dev->serial_number);
-            printf("    Device Manufaturer:      %S\n", dev->manufacturer_string);
+            printf("    Device Manufacturer:     %S\n", dev->manufacturer_string);
             printf("    Device Path:             %s\n", dev->path);
             printf("    Device Interface Number: %i\n", dev->interface_number);
             printf("    Device Release Number:   %d\n", dev->release_number);

@@ -119,7 +119,7 @@ autostart functionality by removing MSIKLM calls from 'etc/rc.local' as well as 
 MSIKLM wakeup scripts from the paths:
 
     /lib/systemd/system-sleep/
-    /usr/lib/pm-utils/
+    /usr/lib/pm-utils/sleep.d/
 
 
 # UNINSTALLATION

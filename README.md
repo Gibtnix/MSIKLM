@@ -106,7 +106,7 @@ To create this file including your MSIKLM arguments of choice, run:
     ./autostart.sh <your arguments>
 
 Try if everything works by first rebooting your system and then try a standby and wakeup. If
-everything works, we are done here. If not, please report and issue. :-)
+everything works, we are done here. If not, please report an issue. :-)
 
 Finally the autostart can be disabled by running
 
@@ -114,7 +114,7 @@ Finally the autostart can be disabled by running
 
 which will disable the autostart by removing the rule file.
 
-Important note: If you already used a previous version of MSIKLM, please undo the previous
+Important remark: If you already used a previous version of MSIKLM, please undo the previous
 autostart functionality by removing MSIKLM calls from 'etc/rc.local' as well as simply delete
 MSIKLM wakeup scripts from the paths:
 

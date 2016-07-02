@@ -96,50 +96,30 @@ An important additional feature is the optional autostart functionality since th
 reset itself to its default color configuration whenever you reboot it or resume from standby.
 Hence, it is really useful to automatically reconfigure the keyboard to your configuration of
 choice. To do this, there is an extra script called 'autostart.sh' that can do this for you. This
-autostart functionality is two-fold: The first thing is to automatically configure the keyboard
-during system boot, the other one is to automatically configure it when resuming from standby.
-For the first one, the file /etc/rc.local (this is an initialization script that is called during
-system boot) will be modified such that MSIKLM will be called with your arguments of choice, i.e.
-the following line will be added to your /etc/rc.local:
+script registers MSIKLM to the udev service (more precisely it registers the keyboard to the udev
+service which calls MSIKLM as soon as the keyboard is detected) by creating a rule file:
 
-    /usr/local/bin/msiklm <your arguments>
+    /etc/udev/rules.d/99-msiklm.rules
 
-To configure the keyboard when resuming from standby, an additional script has to be created
-because /etc/rc.local will not be called here. Unluckily the scripts that will be needed depend on
-the current Linux/Ubuntu version. For the latest Ubuntu releases, the standby/wakeup scripts have
-to be placed in the directory /lib/systemd/system-sleep/ while for older versions probably
-/usr/lib/pm-utils/sleep.d/ is the path of choice. Not only this, also the commands that you have
-to place in these scripts differ. To do both, modify /etc/rc.local and create a wakeup script in
-/lib/systemd/system-sleep/, run:
+To create this file including your MSIKLM arguments of choice, run:
 
     ./autostart.sh <your arguments>
 
 Try if everything works by first rebooting your system and then try a standby and wakeup. If
-everything works, we are done here. If not, probably your Linux version is an older one, i.e. the
-script has to be placed in /usr/lib/pm-utils/sleep.d/ and has to be modified as well. So first
-move the script by
+everything works, we are done here. If not, please report and issue. :-)
 
-    sudo mv /lib/systemd/system-sleep/msiklm-wakeup.sh /usr/lib/pm-utils/sleep.d/99ZZ_msiklm-wakeup.sh
-
-and second modify its content by running
-
-    sudo <editor> /usr/lib/pm-utils/sleep.d/99ZZ_msiklm-wakeup.sh
-
-where <editor> is your favorite text editor (gedit, kate, ...). Then modify the text file to
-
-    #!/bin/sh
-
-    case "$1" in
-        resume)
-            /usr/local/bin/msiklm <your arguments>
-    esac
-
-save it and try a standby resume. Finally the autostart can be disabled by running
+Finally the autostart can be disabled by running
 
     ./autostart.sh --disable
 
-which will undo the modifications of /etc/rc.local as well as removing the created wakeup script.
-If you manually moved the wakeup script, it will not be automatically removed.
+which will disable the autostart by removing the rule file.
+
+Important note: If you already used a previous version of MSIKLM, please undo the previous
+autostart functionality by removing MSIKLM calls from 'etc/rc.local' as well as simply delete
+MSIKLM wakeup scripts from the paths:
+
+    /lib/systemd/system-sleep/
+    /usr/lib/pm-utils/
 
 
 # UNINSTALLATION

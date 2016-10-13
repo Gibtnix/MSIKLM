@@ -15,28 +15,60 @@
  */
 enum color parse_color(const char* color_str)
 {
-    if (!color_str)
-        return -1;
-    else if (strcmp(color_str, "none") == 0 || strcmp(color_str, "off") == 0) //special case: "off" will also be accepted as none
-        return none;
-    else if (strcmp(color_str, "red") == 0)
-        return red;
-    else if (strcmp(color_str, "orange") == 0)
-        return orange;
-    else if (strcmp(color_str, "yellow") == 0)
-        return yellow;
-    else if (strcmp(color_str, "green") == 0)
-        return green;
-    else if (strcmp(color_str, "sky") == 0)
-        return sky;
-    else if (strcmp(color_str, "blue") == 0)
-        return blue;
-    else if (strcmp(color_str, "purple") == 0)
-        return purple;
-    else if (strcmp(color_str, "white") == 0)
-        return white;
-    else
-        return -1;
+    enum color ret = -1;
+    if (color_str)
+    {
+        switch (color_str[0])
+        {
+            case 'b':
+                if (strcmp(color_str, "blue") == 0)
+                    ret = blue;
+                break;
+
+            case 'g':
+                if (strcmp(color_str, "green") == 0)
+                    ret = green;
+                break;
+
+            case 'n':
+                if (strcmp(color_str, "none") == 0)
+                    ret = none;
+                break;
+
+            case 'o':
+                if (strcmp(color_str, "off") == 0)
+                    ret = none; //special case: "off" will also be accepted as none
+                else if (strcmp(color_str, "orange") == 0)
+                    ret = orange;
+                break;
+
+            case 'p':
+                if (strcmp(color_str, "purple") == 0)
+                    ret = purple;
+                break;
+
+            case 'r':
+                if (strcmp(color_str, "red") == 0)
+                    ret = red;
+                break;
+
+            case 's':
+                if (strcmp(color_str, "sky") == 0)
+                    ret = sky;
+                break;
+
+            case 'w':
+                if (strcmp(color_str, "white") == 0)
+                    ret = white;
+                break;
+
+            case 'y':
+                if (strcmp(color_str, "yellow") == 0)
+                    ret = yellow;
+                break;
+        }
+    }
+    return ret;
 }
 
 /**
@@ -46,18 +78,33 @@ enum color parse_color(const char* color_str)
  */
 enum brightness parse_brightness(const char* brightness_str)
 {
-    if (!brightness_str)
-        return -1;
-    else if (strcmp(brightness_str, "high") == 0)
-        return high;
-    else if (strcmp(brightness_str, "medium") == 0)
-        return medium;
-    else if (strcmp(brightness_str, "low") == 0)
-        return low;
-    else if (strcmp(brightness_str, "off") == 0)
-        return off;
-    else
-        return -1;
+    enum brightness ret = -1;
+    if (brightness_str)
+    {
+        switch (brightness_str[0])
+        {
+            case 'h':
+                if (strcmp(brightness_str, "high") == 0)
+                    ret = high;
+                break;
+
+            case 'm':
+                if (strcmp(brightness_str, "medium") == 0)
+                    ret = medium;
+                break;
+
+            case 'l':
+                if (strcmp(brightness_str, "low") == 0)
+                    ret = low;
+                break;
+
+            case 'o':
+                if (strcmp(brightness_str, "off") == 0)
+                    ret = off;
+                break;
+        }
+    }
+    return ret;
 }
 
 /**
@@ -67,20 +114,38 @@ enum brightness parse_brightness(const char* brightness_str)
  */
 enum mode parse_mode(const char* mode_str)
 {
-    if (!mode_str)
-        return -1;
-    else if (strcmp(mode_str, "normal") == 0)
-        return normal;
-    else if (strcmp(mode_str, "gaming") == 0)
-        return gaming;
-    else if (strcmp(mode_str, "breathe") == 0)
-        return breathe;
-    else if (strcmp(mode_str, "demo") == 0)
-        return demo;
-    else if (strcmp(mode_str, "wave") == 0)
-        return wave;
-    else
-        return -1;
+    enum mode ret = -1;
+    if (mode_str)
+    {
+        switch (mode_str[0])
+        {
+            case 'n':
+                if (strcmp(mode_str, "normal") == 0)
+                    ret = normal;
+                break;
+
+            case 'g':
+                if (strcmp(mode_str, "gaming") == 0)
+                    ret = gaming;
+                break;
+
+            case 'b':
+                if (strcmp(mode_str, "breathe") == 0)
+                    ret = breathe;
+                break;
+
+            case 'd':
+                if (strcmp(mode_str, "demo") == 0)
+                    ret = demo;
+                break;
+
+            case 'w':
+                if (strcmp(mode_str, "wave") == 0)
+                    ret = wave;
+                break;
+        }
+    }
+    return ret;
 }
 
 /**
@@ -90,15 +155,10 @@ enum mode parse_mode(const char* mode_str)
 bool keyboard_found()
 {
     hid_device* keyboard = open_keyboard();
-    if (keyboard != NULL)
-    {
+    bool ret = keyboard != NULL;
+    if (ret)
         hid_close(keyboard);
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return ret;
 }
 
 /**
@@ -107,10 +167,10 @@ bool keyboard_found()
  */
 hid_device* open_keyboard()
 {
+    hid_device* keyboard = NULL;
     if (hid_init() == 0)
-        return hid_open(0x1770, 0xff00, 0);
-    else
-        return NULL;
+        keyboard = hid_open(0x1770, 0xff00, 0);
+    return keyboard;
 }
 
 /**

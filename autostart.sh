@@ -26,10 +26,9 @@ if  [ $1 != "--disable" ]; then
         sleep 1
 
         #redirection with '>' or '>>' takes place before 'sudo' is applied, hence not directly usable here
+        run="RUN+=\"/usr/local/bin/msiklm $@\""
         sudo sh -c "echo '# run MSIKLM to configure the keyboard illumination' > $file"
-        sudo sh -c "echo 'ACTION==\"add\", ATTRS{idVendor}==\"1770\", ATTRS{idProduct}==\"ff00\", ' >> $file"
-        run="echo '  RUN+=\"/usr/local/bin/msiklm $@\"'"
-        sudo sh -c "$run >> $file"
+        sudo sh -c "echo 'ACTION==\"add\", ATTRS{idVendor}==\"1770\", ATTRS{idProduct}==\"ff00\", $run' >> $file"
 
         sudo chmod 755 $file
 

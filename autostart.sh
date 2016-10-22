@@ -12,7 +12,7 @@ fi
 # the rules file
 file='/etc/udev/rules.d/99-msiklm.rules'
 
-if  [ $1 != "--disable" ]; then
+if [ $1 != "--disable" ]; then
     # activate the autostart
 
     # autostart requires 'msiklm' to be installed

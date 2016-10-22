@@ -7,15 +7,14 @@
 #   - copy the program 'msiklm' to '/usr/local/bin/msiklm'
 #   - run 'msiklm' with 'test' option to check if the keyboard is detected
 
-echo "Installation script for msiklm - MSI Keyboard Light Manager"
+echo "Installation script for MSIKLM - MSI Keyboard Light Manager"
 echo "###########################################################"
 sleep 1
 
 echo "Installing dependencies..."
 sleep 2
 
-sudo apt-get install -y gcc make libhidapi-dev
-if [ $? -eq 0 ]; then
+if (sudo apt-get install -y gcc make libhidapi-dev); then
     echo "Dependencies installed successfully"
     sleep 2
 else
@@ -27,8 +26,7 @@ echo "Compiling 'msiklm'..."
 sleep 2
 
 # compile
-make
-if [ $? -eq 0 ]; then
+if (make); then
     make clean
     echo "Compiling finished successfully"
     sleep 2
@@ -38,8 +36,7 @@ else
 fi
 
 # install 'msiklm' to '/usr/local/bin/msiklm' which also makes it callable via the msiklm command
-sudo make install
-if [ $? -eq 0 ]; then
+if (sudo make install); then
     echo "Installation of 'msiklm' finished successfully"
     sleep 2
 else
@@ -50,10 +47,7 @@ fi;
 echo "Testing 'msiklm'..."
 sleep 1
 
-sudo msiklm test
-sleep 1
-
-if [ $? -eq 0 ]; then
+if (sudo msiklm test); then
     echo "To configure the keyboard run 'msiklm' with your configuartion of choice, for a list of valid commands run 'msiklm help'."
     echo "If you want to enable the autostart, run 'autostart.sh' with your configuartion of choice, to uninstall 'msiklm' run 'uninstall.sh'."
     echo "Thank you for using 'msiklm' and have fun with it! :-)"

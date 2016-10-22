@@ -25,7 +25,7 @@ or if there are any problems you can try
 
     bash install.sh
 
-as well which will most certainly will work on most Linux distributions. This script will to the
+as well which will most certainly will work on most Linux distributions. This script will do the
 following steps, if you do not want to use the installation script for some reason, you can use
 the manual commands instead:
 
@@ -125,8 +125,8 @@ MSIKLM wakeup scripts from the paths:
 # UNINSTALLATION
 
 MSIKLM also comes with an uninstallation script uninstall.sh which will remove the program file
-/usr/local/bin/msiklm as well as running ./autostart --disable, i.e. it disables the autostart and
-removes created wakeup scripts. If you want to use it, simply run:
+/usr/local/bin/msiklm as well as running ./autostart --disable, i.e. it disables the autostart.
+If you want to use it, simply run:
 
     ./uninstall.sh
 

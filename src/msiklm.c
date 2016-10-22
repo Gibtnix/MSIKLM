@@ -154,10 +154,10 @@ enum mode parse_mode(const char* mode_str)
  */
 bool keyboard_found()
 {
-    hid_device* keyboard = open_keyboard();
-    bool ret = keyboard != NULL;
+    hid_device* dev = open_keyboard();
+    bool ret = dev != NULL;
     if (ret)
-        hid_close(keyboard);
+        hid_close(dev);
     return ret;
 }
 
@@ -167,14 +167,14 @@ bool keyboard_found()
  */
 hid_device* open_keyboard()
 {
-    hid_device* keyboard = NULL;
+    hid_device* dev = NULL;
     if (hid_init() == 0)
-        keyboard = hid_open(0x1770, 0xff00, 0);
-    return keyboard;
+        dev = hid_open(0x1770, 0xff00, 0);
+    return dev;
 }
 
 /**
- * @brief sets the selected color for a specified region
+ * @brief sets the selected color for a specified region (the colors will only be set as soon as set_mode() is called in advance)
  * @param dev the hid device
  * @param color the color value
  * @param region the region where the color should be set_color
@@ -197,17 +197,17 @@ int set_color(hid_device* dev, enum color color, enum region region, enum bright
     if (brightness != off && brightness != low && brightness != medium && brightness != high)
         return -1;
 
-    unsigned char activate[8];
-    activate[0] = 1;
-    activate[1] = 2;
-    activate[2] = 66; // set
-    activate[3] = (unsigned char)region;
-    activate[4] = (unsigned char)color;
-    activate[5] = (unsigned char)brightness;
-    activate[6] = 0;
-    activate[7] = 236; // EOR (end of request)
+    unsigned char buffer[8];
+    buffer[0] = 1;
+    buffer[1] = 2;
+    buffer[2] = 66; // set
+    buffer[3] = (unsigned char)region;
+    buffer[4] = (unsigned char)color;
+    buffer[5] = (unsigned char)brightness;
+    buffer[6] = 0;
+    buffer[7] = 236; // EOR (end of request)
 
-    return hid_send_feature_report(dev, activate, 8);
+    return hid_send_feature_report(dev, buffer, 8);
 }
 
 /**
@@ -222,17 +222,17 @@ int set_mode(hid_device* dev, enum mode mode)
     if (mode != normal  && mode != gaming && mode != breathe && mode != demo && mode != wave)
         return -1;
 
-    unsigned char commit[8];
-    commit[0] = 1;
-    commit[1] = 2;
-    commit[2] = 65; // commit
-    commit[3] = (unsigned char)mode; // set hardware mode
-    commit[4] = 0;
-    commit[5] = 0;
-    commit[6] = 0;
-    commit[7] = 236; // EOR (end of request)
+    unsigned char buffer[8];
+    buffer[0] = 1;
+    buffer[1] = 2;
+    buffer[2] = 65; // commit
+    buffer[3] = (unsigned char)mode; // set hardware mode
+    buffer[4] = 0;
+    buffer[5] = 0;
+    buffer[6] = 0;
+    buffer[7] = 236; // EOR (end of request)
 
-    return hid_send_feature_report(dev, commit, 8);
+    return hid_send_feature_report(dev, buffer, 8);
 }
 
 /**

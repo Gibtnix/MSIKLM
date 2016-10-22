@@ -80,7 +80,7 @@ void show_help()
 }
 
 /**
- * @brief: converts a color command line argument into the three color values
+ * @brief converts a color command line argument into the three color values
  * @param color_str the color string, valid is either "color" or "color_left,color_middle,color_right"
  * @param color_left the assigned left color (either color or color_left)
  * @param color_middle the assigned middle color (either color or )
@@ -89,32 +89,35 @@ void show_help()
  */
 int string_to_colors(char* color_str, enum color* color_left, enum color* color_middle, enum color* color_right)
 {
+    int ret = 0;
+
     *color_left = parse_color(strtok(color_str, ","));
     if ((int)*color_left < 0)
-        return -1;
+        ret = -1;
 
-    char* color_middle_str = strtok(NULL, ",");
-    if (color_middle_str == NULL)
+    if (ret == 0)
     {
-        //one color for all three zones
-        *color_middle = *color_right = *color_left;
-        return 0;
-    }
-    else
-    {
-        //explicit color for each zone
-        *color_middle = parse_color(color_middle_str);
-        if ((int)*color_middle < 0)
-            return 1;
-
-        *color_right = parse_color(strtok(NULL, ","));
-        if ((int)*color_right >= 0 && !strtok(NULL, ",")) //no more parts allowed
-            return 0;
+        char* color_middle_str = strtok(NULL, ",");
+        if (color_middle_str == NULL)
+        {
+            //one color for all three zones
+            *color_middle = *color_right = *color_left;
+        }
         else
-            return 1;
-    }
-}
+        {
+            //explicit color for each zone
+            *color_middle = parse_color(color_middle_str);
+            if ((int)*color_middle < 0)
+                ret = 1;
 
+            *color_right = parse_color(strtok(NULL, ","));
+            if ((int)*color_right < 0 || strtok(NULL, ",")) //no more parts allowed
+                ret = 1;
+        }
+    }
+
+    return ret;
+}
 
 /**
  * @brief application's entry point
@@ -124,34 +127,36 @@ int string_to_colors(char* color_str, enum color* color_left, enum color* color_
  */
 int main(int argc, char** argv)
 {
-    //the color values, brightness and mode; will all be initialized to -1 and modified depending on the parsed from command line arguments
-    //the keyboard's color conifguration will only be modified if all color and brightness are valid after parsing the command line arguments
-    //the keyboard's mode will only be modified if the mode value is valid after parsing the command line arguments
-    enum color color_left=-1, color_middle=-1, color_right=-1;
-    enum brightness br = high;
-    enum mode md = normal;
+    //the color values, the brightness and the mode; will all be initialized according to the parsed from command line arguments
+    enum color color_left, color_middle, color_right;
+    enum brightness br;
+    enum mode md;
+    int ret;
 
-    if (argc == 1)
+    //if the color is supplied, it is always the first argument, so try to parse it
+    if (argc > 1 && string_to_colors(argv[1], &color_left, &color_middle, &color_right) == 0)
     {
-        printf("No arguments supplied; enter help to show a list of valid arguments\n");
-        return -1;
+        ret = 0;
+        br = high;
+        md = normal;
     }
-
-    //if the color is supplied, it is always the first argument, so try to parse it;
-    //if it is a valid color, the parse status is 0, and the color will only be set if the parse status stays 0
-    int parse_status = string_to_colors(argv[1], &color_left, &color_middle, &color_right);
-
-    if (parse_status > 0)
+    else
     {
-        printf("Invalid color arguments supplied; enter help to show a list of valid arguments\n");
-        return -1;
+        ret = -1;
+        color_left = color_middle = color_right = -1;
+        br = -1;
+        md = -1;
     }
+    //it holds: colors, brightness and mode are either all three valid (and will be set) or all -1 (colors will not be modified)
 
     //parse the command line arguments
     switch (argc)
     {
+        case 1:
+            printf("No arguments supplied; use 'msiklm help' to show a list of valid arguments\n");
+            break;
+
         case 2:
-        {
             // only one command line argument; valid values are:
             //  '<color>' -> set the respective color(s)
             //  '<mode>'  -> set the respective mode
@@ -159,56 +164,58 @@ int main(int argc, char** argv)
             //  'test'    -> try to find a compatible SteelSeries MSI Gaming Notebook
             //  'list'    -> list all found HID devices
 
-            if (parse_status != 0) //nothing to do if colors are parsed successfully
+            if (ret != 0) //nothing to do if colors are parsed successfully
             {
                 md = parse_mode(argv[1]);
                 if ((int)md >= 0)
                 {
-                    //set only the mode
-                    hid_device* hiddev = open_keyboard();
-                    set_mode(hiddev, md);
-                    hid_close(hiddev);
-                    return 0;
+                    ret = 0;
                 }
-                else if (strcmp(argv[1], "help")==0)
+                else //invalid mode: check for 'help', 'test' or 'list'
                 {
-                    show_help();
-                    return 0;
-                }
-                else if (strcmp(argv[1], "test")==0)
-                {
-                    if (keyboard_found())
+                    switch (argv[1][0])
                     {
-                        printf(KMAG"Compatible keyboard found!\n"KDEFAULT);
-                        return 0;
+                        case 'h':
+                            if (strcmp(argv[1], "help")==0)
+                            {
+                                show_help();
+                                ret = 0;
+                            }
+                            break;
+
+                        case 't':
+                            if (strcmp(argv[1], "test")==0)
+                            {
+                                if (keyboard_found())
+                                    printf(KMAG"Compatible keyboard found!\n"KDEFAULT);
+                                else
+                                    printf(KMAG"No compatible keyboard found!\n"KDEFAULT);
+
+                                ret = 0;
+                            }
+                            break;
+
+                        case 'l':
+                            if (strcmp(argv[1], "list")==0)
+                            {
+                                enumerate_hid();
+                                ret = 0;
+                            }
+                            break;
                     }
-                    else
-                    {
-                        printf(KMAG"No compatible keyboard found!\n"KDEFAULT);
-                        return -1;
-                    }
-                }
-                else if (strcmp(argv[1], "list")==0)
-                {
-                    enumerate_hid();
-                    return 0;
-                }
-                else
-                {
-                    printf("Invalid argument '%s' - use 'help' to list an overview of valid commands\n", argv[1]);
-                    return -1;
+
+                    if (ret != 0)
+                        printf("Invalid argument '%s' - use 'help' to list an overview of valid commands\n", argv[1]);
                 }
             }
             break;
-        }
 
         case 3:
-        {
             // two command line arguments; valid inputs are:
             // '<color> <brightness>' -> set the respective color(s) and brightness
             // '<color> <mode>'       -> set the respective color(s) and mode
 
-            if (parse_status==0)
+            if (ret==0)
             {
                 enum brightness b = parse_brightness(argv[2]);
                 if ((int)b >= 0)
@@ -225,24 +232,21 @@ int main(int argc, char** argv)
                     else
                     {
                         printf("Invalid brightness / mode argument '%s' - use 'help' to list an overview of valid commands\n", argv[2]);
-                        return -1;
+                        ret = -1;
                     }
                 }
             }
             else
             {
                 printf("Invalid color argument '%s' - use 'help' to list an overview of valid commands\n", argv[1]);
-                return -1;
+                ret = -1;
             }
-
             break;
-        }
 
         case 4:
-        {
             // three command line arguments; valid input is only <color> <brightness> <mode>
 
-            if (parse_status==0)
+            if (ret==0)
             {
                 br = parse_brightness(argv[2]);
                 if ((int)br >= 0)
@@ -251,50 +255,55 @@ int main(int argc, char** argv)
                     if ((int)md < 0)
                     {
                         printf("Invalid mode argument '%s' - use 'help' to list an overview of valid commands\n", argv[3]);
-                        return -1;
+                        ret = -1;
                     }
                 }
                 else
                 {
                     printf("Invalid brightness argument '%s' - use 'help' to list an overview of valid commands\n", argv[2]);
-                    return -1;
+                    ret = -1;
                 }
             }
             else
             {
                 printf("Invalid color argument '%s' - use 'help' to list an overview of valid commands\n", argv[1]);
-                return -1;
+                ret = -1;
             }
-
             break;
-        }
 
         default:
-        {
-            printf("Invalid arguments supplied; enter help to show a list of valid arguments\n");
+            printf("Invalid arguments supplied; use 'msiklm help' to show a list of valid arguments\n");
             break;
-        }
     }
 
-    if (parse_status == 0)
+    if (ret == 0)
     {
         if (br == off) //no color if brightness is set to off
             color_left = color_middle = color_right = none;
 
-        hid_device* hiddev = open_keyboard();
-        if (hiddev == NULL)
+        if ((int)md >= 0)
         {
-            printf("No compatible keyboard found!\n");
-            return -1;
-        }
+            hid_device* dev = open_keyboard();
 
-        set_color(hiddev, color_left, left, br);
-        set_color(hiddev, color_middle, middle, br);
-        set_color(hiddev, color_right, right, br);
-        set_mode(hiddev, md);
-        hid_close(hiddev);
+            if (dev != NULL)
+            {
+                if ((int)color_left >= 0 && (int)color_middle >= 0 && (int)color_right >= 0)
+                {
+                    set_color(dev, color_left, left, br);
+                    set_color(dev, color_middle, middle, br);
+                    set_color(dev, color_right, right, br);
+                }
+                set_mode(dev, md);
+                hid_close(dev);
+            }
+            else
+            {
+                printf("No compatible keyboard found!\n");
+                ret = -1;
+            }
+            hid_exit();
+        }
     }
 
-    hid_exit();
-    return 0;
+    return ret;
 }

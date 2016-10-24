@@ -148,6 +148,64 @@ enum mode parse_mode(const char* mode_str)
     return ret;
 }
 
+void convert_to_rgb(enum color color, unsigned int* rgb)
+{
+    rgb[0] = rgb[1] = rgb[2] = 0;
+    switch (color)
+    {
+        case none:
+            break;
+
+        case red:
+            rgb[0] = 255;
+            rgb[1] = 0;
+            rgb[2] = 0;
+            break;
+
+        case orange:
+            rgb[0] = 255;
+            rgb[1] = 125;
+            rgb[2] = 0;
+            break;
+
+        case yellow:
+            rgb[0] = 255;
+            rgb[1] = 255;
+            rgb[2] = 0;
+            break;
+
+        case green:
+            rgb[0] = 0;
+            rgb[1] = 255;
+            rgb[2] = 0;
+            break;
+
+        case sky:
+            rgb[0] = 0;
+            rgb[1] = 255;
+            rgb[2] = 255;
+            break;
+
+        case blue:
+            rgb[0] = 0;
+            rgb[1] = 0;
+            rgb[2] = 255;
+            break;
+
+        case purple:
+            rgb[0] = 255;
+            rgb[1] = 0;
+            rgb[2] = 255;
+            break;
+
+        case white:
+            rgb[0] = 255;
+            rgb[1] = 255;
+            rgb[2] = 255;
+            break;
+    }
+}
+
 /**
  * @brief tries to open the MSI gaming notebook's SteelSeries keyboard and if it succeeds, it will be closed
  * @returns true, if the keyboard could be opened, false otherwise
@@ -205,6 +263,38 @@ int set_color(hid_device* dev, enum color color, enum region region, enum bright
     buffer[4] = (unsigned char)color;
     buffer[5] = (unsigned char)brightness;
     buffer[6] = 0;
+    buffer[7] = 236; // EOR (end of request)
+
+    return hid_send_feature_report(dev, buffer, 8);
+}
+
+int set_rgb_color(hid_device* dev, enum color color, enum region region)
+{
+    // check for a valid color
+    if (color != none   && color != red    && color != orange &&
+        color != yellow && color != green  && color != sky    &&
+        color != blue   && color != purple && color != white)
+        return -1;
+
+    // check for a valid region
+    if (region != logo && region != front_left && region != front_right && region != mouse)
+        return -1;
+
+    unsigned int rgb[3] = {0,0,0};
+    convert_to_rgb(color, rgb);
+
+    // check for valid rgb values
+    if (rgb[0] > 255 || rgb[1] > 255 || rgb[2] > 255)
+        return -1;
+
+    unsigned char buffer[8];
+    buffer[0] = 1;
+    buffer[1] = 2;
+    buffer[2] = 64; // rgb
+    buffer[3] = (unsigned char)region;
+    buffer[4] = (unsigned char)rgb[0]; // RGB: red
+    buffer[5] = (unsigned char)rgb[1]; // RGB: greed
+    buffer[6] = (unsigned char)rgb[2]; // RGB: blue
     buffer[7] = 236; // EOR (end of request)
 
     return hid_send_feature_report(dev, buffer, 8);

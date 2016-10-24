@@ -47,7 +47,7 @@ void show_help()
             "    list all found HID devices\n"
             "\n"
            KMAG
-            "<color> OR <color_left,color_middle,color_right>\n"
+            "<color> OR <color_left,color_middle,color_right> OR <color_logo,color_front_left,color_front_right,color_mousepad>\n"
            KDEFAULT
             "    set a respective color for all zones / for each zone at full brightness;\n"
             "    if three values are supplied, they have to be separated with commas without spaces,\n"
@@ -81,13 +81,14 @@ void show_help()
 
 /**
  * @brief converts a color command line argument into the three color values
- * @param color_str the color string, valid is either "color" or "color_left,color_middle,color_right"
+ * @param color_str the color string, valid is either "color" or "color_left,color_middle,color_right" or "color_logo,color_front_left,color_front_right,color_mousepad"
  * @param color_left the assigned left color (either color or color_left)
  * @param color_middle the assigned middle color (either color or )
  * @param color_right the assigned right color
+ * @param color_other the assigned mouse color. This also denotes that color_left is actually color_logo, color_middle is actually color_front_left, and color_right is actually color_front_right
  * @return 0 if everything succeeded, 1 on partly matching input, -1 on non-color input
  */
-int string_to_colors(char* color_str, enum color* color_left, enum color* color_middle, enum color* color_right)
+int string_to_colors(char* color_str, enum color* color_left, enum color* color_middle, enum color* color_right, enum color* color_other)
 {
     int ret = 0;
 
@@ -101,7 +102,7 @@ int string_to_colors(char* color_str, enum color* color_left, enum color* color_
         if (color_middle_str == NULL)
         {
             //one color for all three zones
-            *color_middle = *color_right = *color_left;
+            *color_other = *color_middle = *color_right = *color_left;
         }
         else
         {
@@ -111,7 +112,11 @@ int string_to_colors(char* color_str, enum color* color_left, enum color* color_
                 ret = 1;
 
             *color_right = parse_color(strtok(NULL, ","));
-            if ((int)*color_right < 0 || strtok(NULL, ",")) //no more parts allowed
+            if ((int)*color_right < 0)
+                ret = 1;
+
+            *color_other = parse_color(strtok(NULL, ",")); //This is ok if its -1 by default
+            if (strtok(NULL, ",")) //no more parts allowed
                 ret = 1;
         }
     }
@@ -128,13 +133,13 @@ int string_to_colors(char* color_str, enum color* color_left, enum color* color_
 int main(int argc, char** argv)
 {
     //the color values, the brightness and the mode; will all be initialized according to the parsed from command line arguments
-    enum color color_left, color_middle, color_right;
+    enum color color_left, color_middle, color_right, color_other;
     enum brightness br;
     enum mode md;
     int ret;
 
     //if the color is supplied, it is always the first argument, so try to parse it
-    if (argc > 1 && string_to_colors(argv[1], &color_left, &color_middle, &color_right) == 0)
+    if (argc > 1 && string_to_colors(argv[1], &color_left, &color_middle, &color_right, &color_other) == 0)
     {
         ret = 0;
         br = high;
@@ -143,7 +148,7 @@ int main(int argc, char** argv)
     else
     {
         ret = -1;
-        color_left = color_middle = color_right = -1;
+        color_left = color_middle = color_right = color_other = -1;
         br = -1;
         md = -1;
     }
@@ -214,8 +219,9 @@ int main(int argc, char** argv)
             // two command line arguments; valid inputs are:
             // '<color> <brightness>' -> set the respective color(s) and brightness
             // '<color> <mode>'       -> set the respective color(s) and mode
+            // only if color has 3 arguments
 
-            if (ret==0)
+            if (ret==0 && (int)color_other==-1)
             {
                 enum brightness b = parse_brightness(argv[2]);
                 if ((int)b >= 0)
@@ -246,7 +252,7 @@ int main(int argc, char** argv)
         case 4:
             // three command line arguments; valid input is only <color> <brightness> <mode>
 
-            if (ret==0)
+            if (ret==0 && (int)color_other==-1)
             {
                 br = parse_brightness(argv[2]);
                 if ((int)br >= 0)
@@ -279,7 +285,7 @@ int main(int argc, char** argv)
     if (ret == 0)
     {
         if (br == off) //no color if brightness is set to off
-            color_left = color_middle = color_right = none;
+            color_left = color_middle = color_right = color_other = none;
 
         if ((int)md >= 0)
         {
@@ -287,12 +293,27 @@ int main(int argc, char** argv)
 
             if (dev != NULL)
             {
-                if ((int)color_left >= 0 && (int)color_middle >= 0 && (int)color_right >= 0)
+                if ((int)color_other != -1) //If color_other is set
+                {
+                    set_rgb_color(dev, color_left, logo);
+                    set_rgb_color(dev, color_middle, front_left);
+                    set_rgb_color(dev, color_right, front_right);
+                    set_rgb_color(dev, color_other, mouse);
+                    
+                    if ((br == off) || ((color_middle == color_left) && (color_right == color_left) && (color_other == color_left)))
+                    {
+                        set_color(dev, color_left, left, br);
+                        set_color(dev, color_middle, middle, br);
+                        set_color(dev, color_right, right, br);
+                    }
+                }
+                else
                 {
                     set_color(dev, color_left, left, br);
                     set_color(dev, color_middle, middle, br);
                     set_color(dev, color_right, right, br);
                 }
+
                 set_mode(dev, md);
                 hid_close(dev);
             }

@@ -12,7 +12,7 @@ fi
 # the rules file
 file='/etc/udev/rules.d/99-msiklm.rules'
 
-if [ $1 != "--disable" ]; then
+if [ "$1" != "--disable" ]; then
     # activate the autostart
 
     # autostart requires 'msiklm' to be installed
@@ -26,9 +26,14 @@ if [ $1 != "--disable" ]; then
         sleep 1
 
         #redirection with '>' or '>>' takes place before 'sudo' is applied, hence not directly usable here
-        run="RUN+=\"/usr/local/bin/msiklm $@\""
+        run="ACTION==\"add\", ATTRS{idVendor}==\"1770\", ATTRS{idProduct}==\"ff00\", RUN+=\"/usr/local/bin/msiklm "
+        for arg in "$@"; do
+            run="$run '$arg'"
+        done
+        run="$run\"";
+
         sudo sh -c "echo '# run MSIKLM to configure the keyboard illumination' > $file"
-        sudo sh -c "echo 'ACTION==\"add\", ATTRS{idVendor}==\"1770\", ATTRS{idProduct}==\"ff00\", $run' >> $file"
+        echo $run | sudo tee -a $file > /dev/null
 
         sudo chmod 755 $file
 

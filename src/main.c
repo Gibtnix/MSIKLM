@@ -1,10 +1,11 @@
-/**
+﻿/**
  * @file main.c
  *
  * @brief the main application
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "msiklm.h"
 
@@ -47,28 +48,33 @@ void show_help()
             "    list all found HID devices\n"
             "\n"
            KMAG
-            "<color> OR <color_left,color_middle,color_right> OR <color_logo,color_front_left,color_front_right,color_mousepad>\n"
+            "<color> OR <color_left>,<color_middle>[,<color_right>,<color_logo>,<color_front_left>,<color_front_right>,<color_mouse>]\n"
            KDEFAULT
-            "    set a respective color for all zones / for each zone at full brightness;\n"
-            "    if three values are supplied, they have to be separated with commas without spaces,\n"
+            "    set a color for the respective zone at full brightness;\n"
+            "    if multiple values are supplied, they have to be separated with commas without spaces,\n"
             "    e.g. red or red,green,blue are valid while red,green, blue or red, green, blue are not\n"
             "    it is valid to supply three times the same value, but the result will be the same as supplying it only once\n"
-            "    valid colors are: none, off (equivalent to none), red, orange, yellow, green, sky, blue, purple, white\n"
+            "    valid predefined colors are: none, off (equivalent to none), red, orange, yellow, green, sky, blue, purple, white\n"
+            "    additionally it is possible to supply a color in full RGB notation; in this case it has to be supplied in the format\n"
+            "    [red;green;blue] where the brackets are required and 'red', 'green' and 'blue'' are the respective color values (range 0 to 255)\n"
+            "    it is also supported to mix the predefined colors with explicit definitions\n"
+            "    please note that it might be necessary to put quotation marks around explicit color definitions,\n"
+            "    otherwise the argument might not be properly processed by the shell; cf. Readme.md for more detailed information\n"
             "\n"
            KMAG
-            "<color> <brightness> OR <color_left,color_middle,color_right> <brightness>\n"
+            "<colors> <brightness>\n"
            KDEFAULT
             "    set the respective zone's color(s) at the specified brightness; valid brightnesses are: low, medium, high\n"
             "    remark: to disable the illumination, use off or none as global color\n"
             "\n"
            KMAG
-            "<color> <mode> OR <color_left,color_middle,color_right> <mode>\n"
+            "<colors> <mode>\n"
            KDEFAULT
             "    sets the respective zone's color(s) and activates the specified mode\n"
             "    mode is one of the following effects: normal, gaming, breathe, demo, wave\n"
             "\n"
            KMAG
-            "<color> <brightness> <mode> OR <color_left,color_middle,color_right> <brightness> <mode>\n"
+            "<colors> <brightness> <mode>\n"
            KDEFAULT
             "    simultaneously sets the respective zone's color(s) with a specified brightness and a mode\n"
             "\n"
@@ -80,51 +86,6 @@ void show_help()
 }
 
 /**
- * @brief converts a color command line argument into the three color values
- * @param color_str the color string, valid is either "color" or "color_left,color_middle,color_right" or "color_logo,color_front_left,color_front_right,color_mousepad"
- * @param color_left the assigned left color (either color or color_left)
- * @param color_middle the assigned middle color (either color or )
- * @param color_right the assigned right color
- * @param color_other the assigned mouse color. This also denotes that color_left is actually color_logo, color_middle is actually color_front_left, and color_right is actually color_front_right
- * @return 0 if everything succeeded, 1 on partly matching input, -1 on non-color input
- */
-int string_to_colors(char* color_str, enum color* color_left, enum color* color_middle, enum color* color_right, enum color* color_other)
-{
-    int ret = 0;
-
-    *color_left = parse_color(strtok(color_str, ","));
-    if ((int)*color_left < 0)
-        ret = -1;
-
-    if (ret == 0)
-    {
-        char* color_middle_str = strtok(NULL, ",");
-        if (color_middle_str == NULL)
-        {
-            //one color for all three zones
-            *color_other = *color_middle = *color_right = *color_left;
-        }
-        else
-        {
-            //explicit color for each zone
-            *color_middle = parse_color(color_middle_str);
-            if ((int)*color_middle < 0)
-                ret = 1;
-
-            *color_right = parse_color(strtok(NULL, ","));
-            if ((int)*color_right < 0)
-                ret = 1;
-
-            *color_other = parse_color(strtok(NULL, ",")); //This is ok if its -1 by default
-            if (strtok(NULL, ",")) //no more parts allowed
-                ret = 1;
-        }
-    }
-
-    return ret;
-}
-
-/**
  * @brief application's entry point
  * @param argc number of command line arguments
  * @param argv command line argument array; the first value is always the program's name
@@ -132,29 +93,51 @@ int string_to_colors(char* color_str, enum color* color_left, enum color* color_
  */
 int main(int argc, char** argv)
 {
-    //the color values, the brightness and the mode; will all be initialized according to the parsed from command line arguments
-    enum color color_left, color_middle, color_right, color_other;
-    enum brightness br;
-    enum mode md;
+    //the color values (at most 7); num_regions tracks the actual number of parsed colors (i.e. regions to set)
+    struct color colors[7];
+    int num_regions = 0;
     int ret;
 
-    //if the color is supplied, it is always the first argument, so try to parse it
-    if (argc > 1 && string_to_colors(argv[1], &color_left, &color_middle, &color_right, &color_other) == 0)
+    if (argc > 1) //if colors are supplied, they are always the first argument, so try to parse them
     {
         ret = 0;
-        br = high;
-        md = normal;
+        char* saved_ptr = NULL;
+        char color_arg[strlen(argv[1])];
+        strcpy(color_arg, argv[1]);
+
+
+        const char* color_str = strtok_r(color_arg, ",", &saved_ptr);
+        while (color_str != NULL && ret == 0) //parse into next color slot as long as a color is available for parsing (color_str != NULL) and previous parsing succeeded (ret == 0)
+        {
+            if (num_regions <  7) //at most seven regions can be parsed
+            {
+                ret = parse_color(color_str, &(colors[num_regions]));
+                ++num_regions;
+                color_str = strtok_r(NULL, ",", &saved_ptr);
+            }
+            else
+            {
+                ret = 1;
+            }
+        }
+
+        if (ret == 0 && num_regions == 1) //special case: one color will be used for the first three regions
+        {
+            colors[2] = colors[1] = colors[0];
+            num_regions = 3;
+        }
     }
     else
     {
         ret = -1;
-        color_left = color_middle = color_right = color_other = -1;
-        br = -1;
-        md = -1;
     }
-    //it holds: colors, brightness and mode are either all three valid (and will be set) or all -1 (colors will not be modified)
 
-    //parse the command line arguments
+    //the brightness and the mode; initialize them according to the parsed from command line arguments
+    enum brightness br = ret == 0 ? high : -1;
+    enum mode md = ret == 0 ? normal : -1;
+
+    //it holds: if ret == 0, the num_regions color values are all valid (and will be set) or brithness and mode are -1 (colors will not be modified, only maybe the mode)
+
     switch (argc)
     {
         case 1:
@@ -210,7 +193,7 @@ int main(int argc, char** argv)
                     }
 
                     if (ret != 0)
-                        printf("Invalid argument '%s' - use 'help' to list an overview of valid commands\n", argv[1]);
+                        printf("Invalid argument '%s' - use 'msiklm help' to list an overview of valid commands\n", argv[1]);
                 }
             }
             break;
@@ -219,9 +202,8 @@ int main(int argc, char** argv)
             // two command line arguments; valid inputs are:
             // '<color> <brightness>' -> set the respective color(s) and brightness
             // '<color> <mode>'       -> set the respective color(s) and mode
-            // only if color has 3 arguments
 
-            if (ret==0 && (int)color_other==-1)
+            if (ret==0)
             {
                 enum brightness b = parse_brightness(argv[2]);
                 if ((int)b >= 0)
@@ -237,14 +219,14 @@ int main(int argc, char** argv)
                     }
                     else
                     {
-                        printf("Invalid brightness / mode argument '%s' - use 'help' to list an overview of valid commands\n", argv[2]);
+                        printf("Invalid brightness / mode argument '%s' - use 'msiklm help' to list an overview of valid commands\n", argv[2]);
                         ret = -1;
                     }
                 }
             }
             else
             {
-                printf("Invalid color argument '%s' - use 'help' to list an overview of valid commands\n", argv[1]);
+                printf("Invalid color argument '%s' - use 'msiklm help' to list an overview of valid commands\n", argv[1]);
                 ret = -1;
             }
             break;
@@ -252,7 +234,7 @@ int main(int argc, char** argv)
         case 4:
             // three command line arguments; valid input is only <color> <brightness> <mode>
 
-            if (ret==0 && (int)color_other==-1)
+            if (ret==0)
             {
                 br = parse_brightness(argv[2]);
                 if ((int)br >= 0)
@@ -260,19 +242,19 @@ int main(int argc, char** argv)
                     md = parse_mode(argv[3]);
                     if ((int)md < 0)
                     {
-                        printf("Invalid mode argument '%s' - use 'help' to list an overview of valid commands\n", argv[3]);
+                        printf("Invalid mode argument '%s' - use 'msiklm help' to list an overview of valid commands\n", argv[3]);
                         ret = -1;
                     }
                 }
                 else
                 {
-                    printf("Invalid brightness argument '%s' - use 'help' to list an overview of valid commands\n", argv[2]);
+                    printf("Invalid brightness argument '%s' - use 'msiklm help' to list an overview of valid commands\n", argv[2]);
                     ret = -1;
                 }
             }
             else
             {
-                printf("Invalid color argument '%s' - use 'help' to list an overview of valid commands\n", argv[1]);
+                printf("Invalid color argument '%s' - use 'msiklm help' to list an overview of valid commands\n", argv[1]);
                 ret = -1;
             }
             break;
@@ -284,36 +266,14 @@ int main(int argc, char** argv)
 
     if (ret == 0)
     {
-        if (br == off) //no color if brightness is set to off
-            color_left = color_middle = color_right = color_other = none;
-
         if ((int)md >= 0)
         {
             hid_device* dev = open_keyboard();
 
             if (dev != NULL)
             {
-                if ((int)color_other != -1) //If color_other is set
-                {
-                    set_rgb_color(dev, color_left, logo);
-                    set_rgb_color(dev, color_middle, front_left);
-                    set_rgb_color(dev, color_right, front_right);
-                    set_rgb_color(dev, color_other, mouse);
-                    
-                    if ((br == off) || ((color_middle == color_left) && (color_right == color_left) && (color_other == color_left)))
-                    {
-                        set_color(dev, color_left, left, br);
-                        set_color(dev, color_middle, middle, br);
-                        set_color(dev, color_right, right, br);
-                    }
-                }
-                else
-                {
-                    set_color(dev, color_left, left, br);
-                    set_color(dev, color_middle, middle, br);
-                    set_color(dev, color_right, right, br);
-                }
-
+                for (int i=0; i<num_regions; ++i)
+                    set_color(dev, colors[i], i+1, br);
                 set_mode(dev, md);
                 hid_close(dev);
             }

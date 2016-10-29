@@ -7,20 +7,16 @@
 #include <stdbool.h>
 #include <hidapi/hidapi.h>
 
+typedef unsigned char byte;
+
 /**
- * @brief color enum
+ * @brief color struct
  */
-enum color
+struct color
 {
-    none   = 0,
-    red    = 1,
-    orange = 2,
-    yellow = 3,
-    green  = 4,
-    sky    = 5,
-    blue   = 6,
-    purple = 7,
-    white  = 8
+    byte red;
+    byte green;
+    byte blue;
 };
 
 /**
@@ -31,8 +27,7 @@ enum region
     left        = 1,
     middle      = 2,
     right       = 3,
-	//the below only work if hidcmd is set to rgb
-    logo        = 4, 
+    logo        = 4,
     front_left  = 5,
     front_right = 6,
     mouse       = 7
@@ -61,12 +56,14 @@ enum mode
     wave    = 5
 };
 
+
 /**
  * @brief parses a string into a color value
- * @param color_str the color value as a string
- * @returns the parsed color value or -1 if the string is not a valid color (special case: "off" will also be accepted as none)
+ * @param color_str the color value as a string (red, green, blue, etc.) or in [r;g;b] notation where r;g;b are the respective channel values
+ * @param result the parsed color
+ * @returns 0 if parsing succeeded, -1 on error
  */
-enum color parse_color(const char* color_str);
+int parse_color(const char* color_str, struct color* result);
 
 /**
  * @brief parses a string into a brightness value
@@ -83,13 +80,6 @@ enum brightness parse_brightness(const char* brightness_str);
 enum mode parse_mode(const char* mode_str);
 
 /**
- * @brief converts a specified color into a RGB value
- * @param color the color value
- * @param rgb a 3 element array containing the individual Red, Green and Blue numbers from 0 to 255
- */
-void convert_to_rgb(enum color color, unsigned int* rgb);
-
-/**
  * @brief tries to open the MSI gaming notebook's SteelSeries keyboard and if it succeeds, it will be closed
  * @returns true, if the keyboard could be opened, false otherwise
  */
@@ -102,23 +92,14 @@ bool keyboard_found();
 hid_device* open_keyboard();
 
 /**
- * @brief sets the selected color for a specified region
+ * @brief sets the selected color for a specified region (the colors will only be set as soon as set_mode() is called in advance)
  * @param dev the hid device
  * @param color the color value
  * @param region the region where the color should be set_color
  * @param brightness the selected brightness
  * @returns the acutal number of bytes written, -1 on error
  */
-int set_color(hid_device* dev, enum color color, enum region region, enum brightness brightness);
-
-/**
- * @brief sets the selected color for a specified region
- * @param dev the hid device
- * @param color the color value
- * @param region the region where the color should be set_color
- * @returns the acutal number of bytes written, -1 on error
- */
-int set_rgb_color(hid_device* dev, enum color color, enum region region);
+int set_color(hid_device* dev, struct color color, enum region region, enum brightness brightness);
 
 /**
  * @brief sets the selected mode

@@ -5,66 +5,150 @@
  */
 
 #include "msiklm.h"
-#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /**
  * @brief parses a string into a color value
- * @param color_str the color value as a string
- * @returns the parsed color value or -1 if the string is not a valid color (special case: "off" will also be accepted as none)
+ * @param color_str the color value as a string (red, green, blue, etc.) or in [r;g;b] notation where r;g;b are the respective channel values
+ * @param result the parsed color
+ * @returns 0 if parsing succeeded, -1 on error
  */
-enum color parse_color(const char* color_str)
+int parse_color(const char* color_str, struct color* result)
 {
-    enum color ret = -1;
-    if (color_str)
+    int ret = -1;
+    if (color_str != NULL)
     {
         switch (color_str[0])
         {
             case 'b':
                 if (strcmp(color_str, "blue") == 0)
-                    ret = blue;
+                {
+                    result->red = 0;
+                    result->green = 0;
+                    result->blue = 255;
+                    ret = 0;
+                }
                 break;
 
             case 'g':
                 if (strcmp(color_str, "green") == 0)
-                    ret = green;
+                {
+                    result->red = 0;
+                    result->green = 255;
+                    result->blue = 0;
+                    ret = 0;
+                }
                 break;
 
             case 'n':
                 if (strcmp(color_str, "none") == 0)
-                    ret = none;
+                {
+                    result->red = 0;
+                    result->green = 0;
+                    result->blue = 0;
+                    ret = 0;
+                }
                 break;
 
             case 'o':
-                if (strcmp(color_str, "off") == 0)
-                    ret = none; //special case: "off" will also be accepted as none
-                else if (strcmp(color_str, "orange") == 0)
-                    ret = orange;
+                if (strcmp(color_str, "orange") == 0)
+                {
+                   result->red = 255;
+                   result->green = 100;
+                   result->blue = 0;
+                   ret = 0;
+                }
+                else if (strcmp(color_str, "off") == 0)
+                {
+                    result->red = 0;
+                    result->green = 0;
+                    result->blue = 0;
+                    ret = 0;
+                }
                 break;
 
             case 'p':
                 if (strcmp(color_str, "purple") == 0)
-                    ret = purple;
+                {
+                    result->red = 255;
+                    result->green = 0;
+                    result->blue = 255;
+                    ret = 0;
+                }
                 break;
 
             case 'r':
                 if (strcmp(color_str, "red") == 0)
-                    ret = red;
+                {
+                    result->red = 255;
+                    result->green = 0;
+                    result->blue = 0;
+                    ret = 0;
+                }
                 break;
 
             case 's':
                 if (strcmp(color_str, "sky") == 0)
-                    ret = sky;
+                {
+                    result->red = 0;
+                    result->green = 255;
+                    result->blue = 255;
+                    ret = 0;
+                }
                 break;
 
             case 'w':
                 if (strcmp(color_str, "white") == 0)
-                    ret = white;
+                {
+                    result->red = 255;
+                    result->green = 255;
+                    result->blue = 255;
+                    ret = 0;
+                }
                 break;
 
             case 'y':
                 if (strcmp(color_str, "yellow") == 0)
-                    ret = yellow;
+                {
+                    result->red = 255;
+                    result->green = 255;
+                    result->blue = 0;
+                    ret = 0;
+                }
+                break;
+
+            case '[':
+                {
+                    char color_rgb[strlen(color_str)-1];
+                    strcpy(color_rgb, &color_str[1]); //copy the string and skip the '[' sign
+
+                    char* saved_ptr = NULL;
+                    char* end_ptr = NULL;
+
+                    //try to parse the red value
+                    long val = strtol(strtok_r(color_rgb, ";", &saved_ptr), &end_ptr, 10);
+                    if (*end_ptr == '\0' && *saved_ptr != '\0' && val >= 0 && val <= 255)
+                    {
+                        result->red = (byte)val;
+
+                        //try to parse the green value
+                        val = strtol(strtok_r(NULL, ";", &saved_ptr), &end_ptr, 10);
+                        if (*end_ptr == '\0' && *saved_ptr != '\0' && val >= 0 && val <= 255)
+                        {
+                            result->green = (byte)val;
+
+                            //finally try to parse the blue value
+                            val = strtol(strtok_r(NULL, "]", &saved_ptr), &end_ptr, 10);
+                            if (*end_ptr == '\0' && *saved_ptr == '\0' && val >= 0 && val <= 255)
+                            {
+                                result->blue = (byte)val;
+                                ret = 0;
+                            }
+                        }
+                    }
+                }
                 break;
         }
     }
@@ -79,7 +163,7 @@ enum color parse_color(const char* color_str)
 enum brightness parse_brightness(const char* brightness_str)
 {
     enum brightness ret = -1;
-    if (brightness_str)
+    if (brightness_str != NULL)
     {
         switch (brightness_str[0])
         {
@@ -115,7 +199,7 @@ enum brightness parse_brightness(const char* brightness_str)
 enum mode parse_mode(const char* mode_str)
 {
     enum mode ret = -1;
-    if (mode_str)
+    if (mode_str != NULL)
     {
         switch (mode_str[0])
         {
@@ -146,64 +230,6 @@ enum mode parse_mode(const char* mode_str)
         }
     }
     return ret;
-}
-
-void convert_to_rgb(enum color color, unsigned int* rgb)
-{
-    rgb[0] = rgb[1] = rgb[2] = 0;
-    switch (color)
-    {
-        case none:
-            break;
-
-        case red:
-            rgb[0] = 255;
-            rgb[1] = 0;
-            rgb[2] = 0;
-            break;
-
-        case orange:
-            rgb[0] = 255;
-            rgb[1] = 125;
-            rgb[2] = 0;
-            break;
-
-        case yellow:
-            rgb[0] = 255;
-            rgb[1] = 255;
-            rgb[2] = 0;
-            break;
-
-        case green:
-            rgb[0] = 0;
-            rgb[1] = 255;
-            rgb[2] = 0;
-            break;
-
-        case sky:
-            rgb[0] = 0;
-            rgb[1] = 255;
-            rgb[2] = 255;
-            break;
-
-        case blue:
-            rgb[0] = 0;
-            rgb[1] = 0;
-            rgb[2] = 255;
-            break;
-
-        case purple:
-            rgb[0] = 255;
-            rgb[1] = 0;
-            rgb[2] = 255;
-            break;
-
-        case white:
-            rgb[0] = 255;
-            rgb[1] = 255;
-            rgb[2] = 255;
-            break;
-    }
 }
 
 /**
@@ -239,65 +265,49 @@ hid_device* open_keyboard()
  * @param brightness the selected brightness
  * @returns the acutal number of bytes written, -1 on error
  */
-int set_color(hid_device* dev, enum color color, enum region region, enum brightness brightness)
+int set_color(hid_device* dev, struct color color, enum region region, enum brightness brightness)
 {
-    // check for a valid color
-    if (color != none   && color != red    && color != orange &&
-        color != yellow && color != green  && color != sky    &&
-        color != blue   && color != purple && color != white)
-        return -1;
+    int ret;
+    if (region == left || region == middle || region == right || region == logo || region == front_left || region == front_right || region == mouse)
+    {
+        if (brightness == medium || brightness == low || brightness == off)
+        {
+            double factor = brightness / (-3.0) + 1.0;
+            color.red   = (byte)(factor * color.red);
+            color.green = (byte)(factor * color.green);
+            color.blue  = (byte)(factor * color.blue);
+            //printf("Color = [%i, %i, %i]\n", color.red, color.green, color.blue);
+        }
 
-    // check for a valid region
-    if (region != left && region != middle && region != right)
-        return -1;
+        byte buffer[8];
+        buffer[0] = 1;
+        buffer[1] = 2;
+        buffer[2] = 64; // rgb
+        buffer[3] = (byte)region;
+        buffer[4] = color.red;
+        buffer[5] = color.green;
+        buffer[6] = color.blue;
+        buffer[7] = 236; // EOR (end of request)
 
-    // check for a valid brightness
-    if (brightness != off && brightness != low && brightness != medium && brightness != high)
-        return -1;
+        ret = hid_send_feature_report(dev, buffer, 8);
 
-    unsigned char buffer[8];
-    buffer[0] = 1;
-    buffer[1] = 2;
-    buffer[2] = 66; // set
-    buffer[3] = (unsigned char)region;
-    buffer[4] = (unsigned char)color;
-    buffer[5] = (unsigned char)brightness;
-    buffer[6] = 0;
-    buffer[7] = 236; // EOR (end of request)
-
-    return hid_send_feature_report(dev, buffer, 8);
-}
-
-int set_rgb_color(hid_device* dev, enum color color, enum region region)
-{
-    // check for a valid color
-    if (color != none   && color != red    && color != orange &&
-        color != yellow && color != green  && color != sky    &&
-        color != blue   && color != purple && color != white)
-        return -1;
-
-    // check for a valid region
-    if (region != logo && region != front_left && region != front_right && region != mouse)
-        return -1;
-
-    unsigned int rgb[3] = {0,0,0};
-    convert_to_rgb(color, rgb);
-
-    // check for valid rgb values
-    if (rgb[0] > 255 || rgb[1] > 255 || rgb[2] > 255)
-        return -1;
-
-    unsigned char buffer[8];
-    buffer[0] = 1;
-    buffer[1] = 2;
-    buffer[2] = 64; // rgb
-    buffer[3] = (unsigned char)region;
-    buffer[4] = (unsigned char)rgb[0]; // RGB: red
-    buffer[5] = (unsigned char)rgb[1]; // RGB: greed
-    buffer[6] = (unsigned char)rgb[2]; // RGB: blue
-    buffer[7] = 236; // EOR (end of request)
-
-    return hid_send_feature_report(dev, buffer, 8);
+        // alternative color setting, slightly simplier but allows less configuration options:
+        //enum color { none=0, red=1, orange=2, yellow=3, green=4, sky=5, blue=6, purple=7, white=8 }
+        //byte buffer[8];
+        //buffer[0] = 1;
+        //buffer[1] = 2;
+        //buffer[2] = 66; // set
+        //buffer[3] = (byte)region;
+        //buffer[4] = (byte)color;
+        //buffer[5] = (byte)brightness;
+        //buffer[6] = 0;
+        //buffer[7] = 236; // EOR (end of request)
+    }
+    else
+    {
+        ret = -1;
+    }
+    return ret;
 }
 
 /**
@@ -312,11 +322,11 @@ int set_mode(hid_device* dev, enum mode mode)
     if (mode != normal  && mode != gaming && mode != breathe && mode != demo && mode != wave)
         return -1;
 
-    unsigned char buffer[8];
+    byte buffer[8];
     buffer[0] = 1;
     buffer[1] = 2;
     buffer[2] = 65; // commit
-    buffer[3] = (unsigned char)mode; // set hardware mode
+    buffer[3] = (byte)mode; // set hardware mode
     buffer[4] = 0;
     buffer[5] = 0;
     buffer[6] = 0;

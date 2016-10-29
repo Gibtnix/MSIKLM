@@ -74,15 +74,30 @@ I neither wrote one for it nor I plan to do so. It is quite easy to use, and her
 it. It always has to be called with at least one argument, i.e. running it without one will result
 in an error. Here is an overview over the valid commands:
 
-|command                                                                                  | valid arguments                                                                              | example                              |
-|-----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|--------------------------------------|
-|sudo msiklm \<color\>                                                                    | none, off (equivalent to none), red, orange, yellow, green, sky, blue, purple, white         | sudo msiklm green                    |
-|sudo msiklm \<color_left\>,\<color_middle\>,\<color_right\>                              | same as single color (important: no space between the colors!)                               | sudo msiklm green,blue,red           |
-|sudo msiklm \<color_logo\>,\<color_front_left\>,\<color_front_right\>,\<color_mousepad\> | same as above                                                                                | sudo msiklm white,red,red,green      |
-|sudo msiklm \<mode\>                                                                     | normal, gaming, breathe, demo, wave                                                          | sudo msiklm wave                     |
-|sudo msiklm \<color\> \<brightness\>                                                     | color either one or three values (comma-separated), brightness can be off, low, medium, high | sudo msiklm green high               |
-|sudo msiklm \<color\> \<mode\>                                                           | same as above                                                                                | sudo msiklm green,blue,red wave      |
-|sudo msiklm \<color\> \<brightness\> \<mode\>                                            | same as above                                                                                | sudo msiklm green,blue,red high wave |
+|command                                                       | valid arguments                                                                              | example                              |
+|--------------------------------------------------------------|----------------------------------------------------------------------------------------------|--------------------------------------|
+|sudo msiklm \<color\>                                         | either a predefined color or RGB values formatted as [red;green;blue], cf. explanation below | sudo msiklm green                    |
+|sudo msiklm \<color1\>[,\<color2\>,\<color3\>,\<color4\>,...] | same as single color (important: no space between the colors!), cf. explanation below        | sudo msiklm green,blue,red           |
+|sudo msiklm \<mode\>                                          | normal, gaming, breathe, demo, wave                                                          | sudo msiklm wave                     |
+|sudo msiklm \<color\> \<brightness\>                          | color as above, brightness can be off, low, medium, high                                     | sudo msiklm green high               |
+|sudo msiklm \<color\> \<mode\>                                | same as above                                                                                | sudo msiklm green,blue,red wave      |
+|sudo msiklm \<color\> \<brightness\> \<mode\>                 | same as above                                                                                | sudo msiklm green,blue,red high wave |
+
+The predefined supported colors are: none, off (equivalent to none), red, orange, yellow, green,
+sky, blue, purple and white. The color configuration can also be performed in an more advanced way:
+At most seven zones are supported (as long as supported by your device) and the respective colors
+have to be supplied in the following order: left, middle, right, logo, front_left, front_right and
+mouse. If there is only one supplied color, it is reused for the first three zones, the remaining
+ones stay unchanged (i.e. green as single argument is equivalent to green,green,green). The colors
+have to be separated with no spaces between the colors, simply add a comma for a new zone. The last
+four colors are fully optional, i.e. they are set if and only if they are supplied. Consequently,
+if you want to change the last color (mouse), you have to specify a color for all zones. Instead of
+a predefined color, each color can alternatively be set in the RGB notation; the color values have
+to be enclosed by brackets and separated by semicolons, e.g. green is equivalent to [0;255;0]. It
+is possible to mix these explicit color definitions with predefined ones, e.g. you can select a
+custom color for the left zone and use predefined for the others by supplying [R;G;B],green,blue.
+Please note that it might be necessary to put quotation marks around explicit color definitions,
+otherwise the argument might not be properly processed by the shell.
 
 Additionally, there are three extra commands that might be useful if something does not work:
 

@@ -105,11 +105,10 @@ int main(int argc, char** argv)
         char color_arg[strlen(argv[1])];
         strcpy(color_arg, argv[1]);
 
-
         const char* color_str = strtok_r(color_arg, ",", &saved_ptr);
         while (color_str != NULL && ret == 0) //parse into next color slot as long as a color is available for parsing (color_str != NULL) and previous parsing succeeded (ret == 0)
         {
-            if (num_regions <  7) //at most seven regions can be parsed
+            if (num_regions < 7) //at most seven regions can be parsed
             {
                 ret = parse_color(color_str, &(colors[num_regions]));
                 ++num_regions;

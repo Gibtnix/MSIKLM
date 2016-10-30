@@ -4,7 +4,7 @@
 #   - install the dependencies to compile the program, i.e. install 'gcc', 'make' and 'libhidapi-dev'
 #     remark: once the program is compiled, 'libhidapi-dev' isn't required any more, only 'libhidapi-libusb0' is
 #   - compile the program
-#   - copy the program 'msiklm' to '/usr/local/bin/msiklm'
+#   - move the program 'msiklm' to '/usr/local/bin/msiklm'
 #   - run 'msiklm' with 'test' option to check if the keyboard is detected
 
 echo "Installation script for MSIKLM - MSI Keyboard Light Manager"
@@ -15,7 +15,7 @@ echo "Installing dependencies..."
 sleep 2
 
 if (sudo apt-get install -y gcc make libhidapi-dev); then
-    echo "Dependencies installed successfully"
+    echo "Dependencies successfully installed"
     sleep 2
 else
     echo "Dependencies could not be installed"

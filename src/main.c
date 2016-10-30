@@ -264,26 +264,29 @@ int main(int argc, char** argv)
             break;
     }
 
-    if (ret == 0)
+    if (ret == 0 && (int)md >= 0)
     {
-        if ((int)md >= 0)
-        {
-            hid_device* dev = open_keyboard();
+        hid_device* dev = open_keyboard();
 
-            if (dev != NULL)
-            {
-                for (int i=0; i<num_regions; ++i)
-                    set_color(dev, colors[i], i+1, br);
-                set_mode(dev, md);
-                hid_close(dev);
-            }
-            else
-            {
-                printf("No compatible keyboard found!\n");
+        if (dev != NULL)
+        {
+            for (int i=0; i<num_regions && ret == 0; ++i)
+                if (set_color(dev, colors[i], i+1, br) <= 0)
+                    ret = -1;
+
+            if (ret == 0 && set_mode(dev, md) <= 0)
                 ret = -1;
-            }
-            hid_exit();
+
+            hid_close(dev);
         }
+        else
+        {
+            printf("No compatible keyboard found!\n");
+            ret = -1;
+        }
+
+        if (hid_exit() != 0)
+            ret = -1;
     }
 
     return ret;

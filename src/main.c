@@ -101,22 +101,23 @@ int main(int argc, char** argv)
     if (argc > 1) //if colors are supplied, they are always the first argument, so try to parse them
     {
         ret = 0;
-        char* saved_ptr = NULL;
+
         char color_arg[strlen(argv[1])];
         strcpy(color_arg, argv[1]);
 
+        char* saved_ptr = NULL;
         const char* color_str = strtok_r(color_arg, ",", &saved_ptr);
         while (color_str != NULL && ret == 0) //parse into next color slot as long as a color is available for parsing (color_str != NULL) and previous parsing succeeded (ret == 0)
         {
-            if (num_regions < 7) //at most seven regions can be parsed
+            ret = parse_color(color_str, &(colors[num_regions]));
+            if (ret == 0 && num_regions < 7)
             {
-                ret = parse_color(color_str, &(colors[num_regions]));
                 ++num_regions;
                 color_str = strtok_r(NULL, ",", &saved_ptr);
             }
             else
             {
-                ret = 1;
+                ret = -1;
             }
         }
 

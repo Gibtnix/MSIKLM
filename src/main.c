@@ -164,7 +164,7 @@ int main(int argc, char** argv)
                     switch (argv[1][0])
                     {
                         case 'h':
-                            if (strcmp(argv[1], "help")==0)
+                            if (strcmp(argv[1], "help") == 0)
                             {
                                 show_help();
                                 ret = 0;
@@ -172,7 +172,7 @@ int main(int argc, char** argv)
                             break;
 
                         case 't':
-                            if (strcmp(argv[1], "test")==0)
+                            if (strcmp(argv[1], "test") == 0)
                             {
                                 if (keyboard_found())
                                     printf(KMAG"Compatible keyboard found!\n"KDEFAULT);
@@ -184,7 +184,7 @@ int main(int argc, char** argv)
                             break;
 
                         case 'l':
-                            if (strcmp(argv[1], "list")==0)
+                            if (strcmp(argv[1], "list") == 0)
                             {
                                 enumerate_hid();
                                 ret = 0;
@@ -203,7 +203,7 @@ int main(int argc, char** argv)
             // '<color> <brightness>' -> set the respective color(s) and brightness
             // '<color> <mode>'       -> set the respective color(s) and mode
 
-            if (ret==0)
+            if (ret == 0)
             {
                 enum brightness b = parse_brightness(argv[2]);
                 if ((int)b >= 0)
@@ -234,7 +234,7 @@ int main(int argc, char** argv)
         case 4:
             // three command line arguments; valid input is only <color> <brightness> <mode>
 
-            if (ret==0)
+            if (ret == 0)
             {
                 br = parse_brightness(argv[2]);
                 if ((int)br >= 0)

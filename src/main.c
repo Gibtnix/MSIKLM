@@ -102,7 +102,7 @@ int main(int argc, char** argv)
     {
         ret = 0;
 
-        char color_arg[strlen(argv[1])];
+        char* color_arg = (char*)malloc(strlen(argv[1]) * sizeof(char));
         strcpy(color_arg, argv[1]);
 
         char* saved_ptr = NULL;
@@ -120,6 +120,7 @@ int main(int argc, char** argv)
                 ret = -1;
             }
         }
+        free(color_arg);
 
         if (ret == 0 && num_regions == 1) //special case: one color will be used for the first three regions
         {

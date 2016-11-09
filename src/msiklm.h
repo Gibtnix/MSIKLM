@@ -4,6 +4,9 @@
  * @brief header file for the controller functions to configure the SteelSeries keyboard in MSI gaming notebooks
  */
 
+#ifndef MSIKLM_H
+#define MSIKLM_H
+
 #include <stdbool.h>
 #include <hidapi/hidapi.h>
 
@@ -113,3 +116,5 @@ int set_mode(hid_device* dev, enum mode mode);
  * @brief iterates through all found HID devices
  */
 void enumerate_hid();
+
+#endif //MSIKLM_H

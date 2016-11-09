@@ -102,8 +102,10 @@ int main(int argc, char** argv)
     {
         ret = 0;
 
-        char* color_arg = (char*)malloc(strlen(argv[1]) * sizeof(char));
+        size_t length = strlen(argv[1]);
+        char* color_arg = (char*)malloc((length+1) * sizeof(char));
         strcpy(color_arg, argv[1]);
+        color_arg[length] = '\0';
 
         char* saved_ptr = NULL;
         const char* color_str = strtok_r(color_arg, ",", &saved_ptr);

@@ -15,12 +15,26 @@ typedef unsigned char byte;
 /**
  * @brief color struct
  */
-struct color
+typedef struct
 {
     byte red;
     byte green;
     byte blue;
-};
+} color_t;
+
+
+/**
+ * @brief color constants
+ */
+static const color_t none   = { 0x00, 0x00, 0x00 };
+static const color_t red    = { 0xff, 0x00, 0x00 };
+static const color_t orange = { 0xff, 0x60, 0x00 };
+static const color_t yellow = { 0xff, 0xff, 0x00 };
+static const color_t green  = { 0x00, 0xff, 0x00 };
+static const color_t cyan   = { 0x00, 0xff, 0xff };
+static const color_t blue   = { 0x00, 0x00, 0xff };
+static const color_t purple = { 0xff, 0x00, 0xff };
+static const color_t white  = { 0xff, 0xff, 0xff };
 
 /**
  * @brief region enum
@@ -66,7 +80,7 @@ enum mode
  * @param result the parsed color
  * @returns 0 if parsing succeeded, -1 on error
  */
-int parse_color(const char* color_str, struct color* result);
+int parse_color(const char* color_str, color_t* result);
 
 /**
  * @brief parses a string into a brightness value
@@ -102,7 +116,7 @@ hid_device* open_keyboard();
  * @param brightness the selected brightness
  * @returns the acutal number of bytes written, -1 on error
  */
-int set_color(hid_device* dev, struct color color, enum region region, enum brightness brightness);
+int set_color(hid_device* dev, color_t color, enum region region, enum brightness brightness);
 
 /**
  * @brief sets the selected mode

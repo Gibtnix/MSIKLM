@@ -121,7 +121,11 @@ int parse_color(const char* color_str, struct color* result)
 
             case '[':
                 {
+#ifdef _WIN32
+					char* color_rgb = malloc(strlen(color_str) - 1);
+#else
                     char color_rgb[strlen(color_str)-1];
+#endif
                     strcpy(color_rgb, &color_str[1]); //copy the string and skip the '[' sign
 
                     char* saved_ptr = NULL;
@@ -148,6 +152,9 @@ int parse_color(const char* color_str, struct color* result)
                             }
                         }
                     }
+#ifdef _WIN32
+					free(color_rgb);
+#endif
                 }
                 break;
         }

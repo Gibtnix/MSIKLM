@@ -7,6 +7,10 @@
 #ifndef MSIKLM_H
 #define MSIKLM_H
 
+#ifdef _WIN32
+    #define strtok_r(s,d,p) strtok_s(s,d,p)
+#endif
+
 #include <stdbool.h>
 #include <hidapi/hidapi.h>
 

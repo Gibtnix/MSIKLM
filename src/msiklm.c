@@ -121,7 +121,7 @@ int parse_color(const char* color_str, struct color* result)
 
             case '[':
                 {
-                    char* color_rgb = malloc(strlen(color_str)-1);
+                    char* color_rgb = malloc(sizeof(char) * strlen(color_str));
                     strcpy(color_rgb, &color_str[1]); //copy the string and skip the '[' sign
 
                     char* saved_ptr = NULL;

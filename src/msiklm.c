@@ -47,9 +47,9 @@ int parse_color(const char* color_str, color_t* result)
 
             if (strlen(hex_value) == 6)
             {
-                result->red = hex(hex_value[0]) * 10 + hex(hex_value[1]);
-                result->green = hex(hex_value[2]) * 10 + hex(hex_value[3]);
-                result->blue = hex(hex_value[4]) * 10 + hex(hex_value[5]);
+                result->red = hex(hex_value[0]) * 16 + hex(hex_value[1]);
+                result->green = hex(hex_value[2]) * 16 + hex(hex_value[3]);
+                result->blue = hex(hex_value[4]) * 16 + hex(hex_value[5]);
 		return 0;
             }
         } 

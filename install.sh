@@ -14,7 +14,7 @@ sleep 1
 echo "Installing dependencies..."
 sleep 2
 
-if (sudo apt-get install -y gcc make libhidapi-dev); then
+if (sudo apt install -y gcc make libhidapi-dev); then
     echo "Dependencies successfully installed"
     sleep 2
 else

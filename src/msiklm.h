@@ -7,6 +7,10 @@
 #ifndef MSIKLM_H
 #define MSIKLM_H
 
+#ifdef _WIN32
+    #define strtok_r(s,d,p) strtok_s(s,d,p)
+#endif
+
 #include <stdbool.h>
 #include <hidapi/hidapi.h>
 
@@ -15,26 +19,12 @@ typedef unsigned char byte;
 /**
  * @brief color struct
  */
-typedef struct
+struct color
 {
     byte red;
     byte green;
     byte blue;
-} color_t;
-
-
-/**
- * @brief color constants
- */
-static const color_t none   = { 0x00, 0x00, 0x00 };
-static const color_t red    = { 0xff, 0x00, 0x00 };
-static const color_t orange = { 0xff, 0x60, 0x00 };
-static const color_t yellow = { 0xff, 0xff, 0x00 };
-static const color_t green  = { 0x00, 0xff, 0x00 };
-static const color_t cyan   = { 0x00, 0xff, 0xff };
-static const color_t blue   = { 0x00, 0x00, 0xff };
-static const color_t purple = { 0xff, 0x00, 0xff };
-static const color_t white  = { 0xff, 0xff, 0xff };
+};
 
 /**
  * @brief region enum
@@ -76,11 +66,11 @@ enum mode
 
 /**
  * @brief parses a string into a color value
- * @param color_str the color value as a string (red, green, blue, etc.) or in [r;g;b] notation where r;g;b are the respective channel values
+ * @param color_str the color value as a string (red, green, blue, etc.), hex code (0xFFFFFF) or in [r;g;b] notation where r;g;b are the respective channel values
  * @param result the parsed color
  * @returns 0 if parsing succeeded, -1 on error
  */
-int parse_color(const char* color_str, color_t* result);
+int parse_color(const char* color_str, struct color* result);
 
 /**
  * @brief parses a string into a brightness value
@@ -116,7 +106,7 @@ hid_device* open_keyboard();
  * @param brightness the selected brightness
  * @returns the acutal number of bytes written, -1 on error
  */
-int set_color(hid_device* dev, color_t color, enum region region, enum brightness brightness);
+int set_color(hid_device* dev, struct color color, enum region region, enum brightness brightness);
 
 /**
  * @brief sets the selected mode
@@ -125,6 +115,13 @@ int set_color(hid_device* dev, color_t color, enum region region, enum brightnes
  * @returns the acutal number of bytes written, -1 on error
  */
 int set_mode(hid_device* dev, enum mode mode);
+
+/**
+ * @brief utility function for hex code parsing
+ * @param hex the hex code in question
+ * @returns the parsed integer value
+ */
+int parse_hex(unsigned char hex);
 
 /**
  * @brief iterates through all found HID devices

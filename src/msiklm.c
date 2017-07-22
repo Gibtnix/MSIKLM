@@ -9,65 +9,187 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int hex(unsigned char c) {
-
-        if (c >= '0' && c <='9')
-                return c - '0';
-        if (c >= 'A' && c <= 'F')
-                return 10 + c - 'A';
-        if (c >= 'a' && c <= 'f')
-                return 10 + c - 'a';
-        return 0;
-}
-
 /**
  * @brief parses a string into a color value
- * @param color_str the color value as a string (red, green, blue, etc.) or in [r;g;b] notation where r;g;b are the respective channel values
+ * @param color_str the color value as a string (red, green, blue, etc.), hex code (0xFFFFFF) or in [r;g;b] notation where r;g;b are the respective channel values
  * @param result the parsed color
  * @returns 0 if parsing succeeded, -1 on error
  */
-int parse_color(const char* color_str, color_t* result)
+int parse_color(const char* color_str, struct color* result)
 {
-    struct _s { char *name; color_t color; } color_map[9] = { { "none", none },
-                                                          { "red", red },
-                                                          { "orange", orange },
-                                                          { "yellow", yellow },
-                                                          { "green", green },
-                                                          { "cyan", cyan },
-                                                          { "blue", blue },
-                                                          { "purple", purple },
-                                                          { "white", white }
-                                                        };  
+    int ret = -1;
     if (color_str != NULL)
     {
-        // if it's an hexa code, parse it
-        if (color_str[0] == '0' && color_str[1] == 'x')
+        switch (color_str[0])
         {
-            const char *hex_value = color_str + 2;
-
-            if (strlen(hex_value) == 6)
-            {
-                result->red = hex(hex_value[0]) * 16 + hex(hex_value[1]);
-                result->green = hex(hex_value[2]) * 16 + hex(hex_value[3]);
-                result->blue = hex(hex_value[4]) * 16 + hex(hex_value[5]);
-		return 0;
-            }
-        } 
-        else
-        {
-            int i;
-            for( i = 0; i < 9; i++)
-            {
-                if (strcmp(color_str, color_map[i].name) == 0)
+            case 'b':
+                if (strcmp(color_str, "blue") == 0)
                 {
-                    *result = color_map[i].color;
-                    return 0;
+                    result->red = 0;
+                    result->green = 0;
+                    result->blue = 255;
+                    ret = 0;
                 }
-            }
+                break;
+
+            case 'g':
+                if (strcmp(color_str, "green") == 0)
+                {
+                    result->red = 0;
+                    result->green = 255;
+                    result->blue = 0;
+                    ret = 0;
+                }
+                break;
+
+            case 'n':
+                if (strcmp(color_str, "none") == 0)
+                {
+                    result->red = 0;
+                    result->green = 0;
+                    result->blue = 0;
+                    ret = 0;
+                }
+                break;
+
+            case 'o':
+                if (strcmp(color_str, "orange") == 0)
+                {
+                   result->red = 255;
+                   result->green = 100;
+                   result->blue = 0;
+                   ret = 0;
+                }
+                else if (strcmp(color_str, "off") == 0)
+                {
+                    result->red = 0;
+                    result->green = 0;
+                    result->blue = 0;
+                    ret = 0;
+                }
+                break;
+
+            case 'p':
+                if (strcmp(color_str, "purple") == 0)
+                {
+                    result->red = 255;
+                    result->green = 0;
+                    result->blue = 255;
+                    ret = 0;
+                }
+                break;
+
+            case 'r':
+                if (strcmp(color_str, "red") == 0)
+                {
+                    result->red = 255;
+                    result->green = 0;
+                    result->blue = 0;
+                    ret = 0;
+                }
+                break;
+
+            case 's':
+                if (strcmp(color_str, "sky") == 0)
+                {
+                    result->red = 0;
+                    result->green = 255;
+                    result->blue = 255;
+                    ret = 0;
+                }
+                break;
+
+            case 'w':
+                if (strcmp(color_str, "white") == 0)
+                {
+                    result->red = 255;
+                    result->green = 255;
+                    result->blue = 255;
+                    ret = 0;
+                }
+                break;
+
+            case 'y':
+                if (strcmp(color_str, "yellow") == 0)
+                {
+                    result->red = 255;
+                    result->green = 255;
+                    result->blue = 0;
+                    ret = 0;
+                }
+                break;
+
+            case '[': //[red;green;blue]
+                {
+                    size_t length = strlen(color_str);
+                    char* color_rgb = (char*)malloc(length * sizeof(char));
+                    strcpy(color_rgb, &color_str[1]); //copy the string and skip the '['-sign
+                    color_rgb[length] = '\0';
+
+                    char* saved_ptr = NULL;
+                    char* end_ptr = NULL;
+
+                    //try to parse the red value
+                    long val = strtol(strtok_r(color_rgb, ";", &saved_ptr), &end_ptr, 10);
+                    if (*end_ptr == '\0' && *saved_ptr != '\0' && val >= 0 && val <= 255)
+                    {
+                        result->red = (byte)val;
+
+                        //try to parse the green value
+                        val = strtol(strtok_r(NULL, ";", &saved_ptr), &end_ptr, 10);
+                        if (*end_ptr == '\0' && *saved_ptr != '\0' && val >= 0 && val <= 255)
+                        {
+                            result->green = (byte)val;
+
+                            //finally try to parse the blue value
+                            val = strtol(strtok_r(NULL, "]", &saved_ptr), &end_ptr, 10);
+                            if (*end_ptr == '\0' && *saved_ptr == '\0' && val >= 0 && val <= 255)
+                            {
+                                result->blue = (byte)val;
+                                ret = 0;
+                            }
+                        }
+                    }
+                    free(color_rgb);
+                }
+                break;
+
+            case '0': //color in hex format
+                if (strlen(color_str) == 8  && color_str[1] == 'x')
+                {
+                    int red1 = parse_hex(color_str[2]);
+                    if (red1 >= 0)
+                    {
+                        int red2 = parse_hex(color_str[3]);
+                        if (red2 >= 0)
+                        {
+                            result->red = 16 * red1 + red2;
+                            int green1 = parse_hex(color_str[4]);
+                            if (green1 >= 0)
+                            {
+                                int green2 = parse_hex(color_str[5]);
+                                if (green2 >= 0)
+                                {
+                                    result->green = 16 * green1 + green2;
+                                    int blue1 = parse_hex(color_str[6]);
+                                    if (blue1 >= 0)
+                                    {
+                                        int blue2 = parse_hex(color_str[7]);
+                                        if (blue2 >= 0)
+                                        {
+                                            result->blue = 16 * blue1 + blue2;
+                                            ret = 0;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
         }
-     } 
-    
-    return -1;
+    }
+    return ret;
 }
 
 /**
@@ -180,7 +302,7 @@ hid_device* open_keyboard()
  * @param brightness the selected brightness
  * @returns the acutal number of bytes written, -1 on error
  */
-int set_color(hid_device* dev, color_t color, enum region region, enum brightness brightness)
+int set_color(hid_device* dev, struct color color, enum region region, enum brightness brightness)
 {
     int ret;
     if (region == left || region == middle || region == right || region == logo || region == front_left || region == front_right || region == mouse)
@@ -251,6 +373,21 @@ int set_mode(hid_device* dev, enum mode mode)
 }
 
 /**
+ * @brief utility function for hex code parsing
+ * @param hex the hex code in question
+ * @returns the parsed integer value
+ */
+int parse_hex(unsigned char hex)
+{
+    int ret;
+         if (hex >= '0' && hex <='9')  ret = hex - '0';
+    else if (hex >= 'A' && hex <= 'F') ret = 10 + hex - 'A';
+    else if (hex >= 'a' && hex <= 'f') ret = 10 + hex - 'a';
+    else                               ret = -1;
+    return ret;
+}
+
+/**
  * @brief iterates through all found HID devices
  */
 void enumerate_hid()
@@ -280,4 +417,3 @@ void enumerate_hid()
         printf("No HID device found!\n");
     }
 }
-

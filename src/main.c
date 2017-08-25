@@ -148,7 +148,7 @@ int main(int argc, char** argv)
         ret = -1;
     }
 
-    //the brightness and the mode; initialize them according to the parsed from command line arguments
+    //the brightness and the mode; initialize them according to the parsed command line arguments
     enum brightness br = ret == 0 ? high : -1;
     enum mode md = ret == 0 ? normal : -1;
 

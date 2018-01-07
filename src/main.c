@@ -109,12 +109,11 @@ int main(int argc, char** argv)
     //the color values (at most 7); num_regions tracks the actual number of parsed colors (i.e. regions to set)
     struct color colors[7];
     int num_regions = 0;
-    int ret;
+    int ret = argc > 1 ? 0 : -1;
 
-    if (argc > 1) //if colors are supplied, they are always the first argument, so try to parse them
+    //if colors are supplied, they are always the first argument, so try to parse them
+    if (ret == 0)
     {
-        ret = 0;
-
         size_t length = strlen(argv[1]);
         char* color_arg = (char*)malloc((length+1) * sizeof(char));
         strcpy(color_arg, argv[1]);
@@ -142,10 +141,6 @@ int main(int argc, char** argv)
             colors[2] = colors[1] = colors[0];
             num_regions = 3;
         }
-    }
-    else
-    {
-        ret = -1;
     }
 
     //the brightness and the mode; initialize them according to the parsed command line arguments

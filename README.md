@@ -148,9 +148,10 @@ If you want to use it, simply run:
     ./uninstall.sh
 
 
-# DEVELOPPER INFORMATION
+# DEVELOPER INFORMATION
 
-The source code is splitted into three files: The main application (main.c) that converts the
-input as well as a small library that contains the main features (msiklm.h and msiklm.c). It
-provides a simple C API and hence allows an easy integration into different programs like maybe
+The source code is split into three files:
+- Main application (`main.c`) that converts the input
+- Small library that contains the main features (`msiklm.h` and `msiklm.c`).
+This provides a simple C API and hence allows an easy integration into different programs like maybe
 a small graphical user interface.

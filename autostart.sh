@@ -9,24 +9,27 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+# location of the MSIKLM binary (maybe adjust this according to your install target)
+msiklm='/usr/local/bin/msiklm'
+
 # the rules file
 file='/etc/udev/rules.d/99-msiklm.rules'
+
+# autostart requires 'msiklm' to be installed
+if [ ! -f $msiklm ]; then
+    echo "MSI Keyboard Light Manager is not installed, hence no autostart possible"
+    exit 1
+fi
 
 if [ "$1" != "--disable" ]; then
     # activate the autostart
 
-    # autostart requires 'msiklm' to be installed
-    if [ ! -f '/usr/local/bin/msiklm' ]; then
-        echo "MSI Keyboard Light Manager is not installed, hence no autostart possible"
-        exit 1
-    fi
-
-    if (sudo /usr/local/bin/msiklm $@); then
+    if (sudo $msiklm $@); then
         echo "Activating MSIKLM autostart..."
         sleep 1
 
         #redirection with '>' or '>>' takes place before 'sudo' is applied, hence not directly usable here
-        run="ACTION==\"add\", ATTRS{idVendor}==\"1770\", ATTRS{idProduct}==\"ff00\", RUN+=\"/usr/local/bin/msiklm "
+        run="ACTION==\"add\", ATTRS{idVendor}==\"1770\", ATTRS{idProduct}==\"ff00\", RUN+=\"$msiklm " #trailing space since the arguments will be added
         for arg in "$@"; do
             run="$run '$arg'"
         done

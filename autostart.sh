@@ -38,7 +38,7 @@ if [ "$1" != "--disable" ]; then
         sudo sh -c "echo '# run MSIKLM to configure the keyboard illumination' > $file"
         echo $run | sudo tee -a $file > /dev/null
 
-        sudo chmod 755 $file
+        sudo chmod 644 $file
 
         echo "Autostart rules file '$file' created"
     else

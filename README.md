@@ -61,9 +61,9 @@ non-root).
 
 ## Distribution package
 
-Currently, the only linux distribution providing an install method is Archlinux, via the AUR repository
+Currently, the only Linux distribution providing an install method is Arch Linux, via the AUR repository
 
- * Archlinux : https://aur.archlinux.org/packages/msiklm-git/
+ * Arch Linux : https://aur.archlinux.org/packages/msiklm-git/
 
 
 # USABILITY
@@ -104,7 +104,7 @@ Further the brightness argument can only be set to low, medium and high if _no_ 
 given, while not supplying it is equivalent to supply 'rgb'. The reason for this is two-fold: First
 it makes little to no sense to explicitly define the color and to give a brightness as well, second
 the brightness can be used to switch to a different way of communicating with the keyboard. Besides
-technical details (see function set_color() in msiklm.c fur further details if you are interested
+technical details (see function set_color() in msiklm.c for further details if you are interested
 in them), it improves the compatibility with different devices, however the brightness has to be
 explicitly given. For example 'sudo msiklm green' will set the color green using its rgb-values
 (i.e. red=0, green=255, blue=0 or 0x00FF00 in hex code notation) while 'sudo msiklm green high'

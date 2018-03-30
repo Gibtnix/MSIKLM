@@ -18,13 +18,14 @@
 int parse_color(const char* color_str, struct color* result)
 {
     int ret = -1;
-    if (color_str != NULL)
+    if (color_str != NULL && result != NULL)
     {
         switch (color_str[0])
         {
             case 'b':
                 if (strcmp(color_str, "blue") == 0)
                 {
+                    result->profile = blue;
                     result->red = 0;
                     result->green = 0;
                     result->blue = 255;
@@ -35,6 +36,7 @@ int parse_color(const char* color_str, struct color* result)
             case 'g':
                 if (strcmp(color_str, "green") == 0)
                 {
+                    result->profile = green;
                     result->red = 0;
                     result->green = 255;
                     result->blue = 0;
@@ -45,6 +47,7 @@ int parse_color(const char* color_str, struct color* result)
             case 'n':
                 if (strcmp(color_str, "none") == 0)
                 {
+                    result->profile = none;
                     result->red = 0;
                     result->green = 0;
                     result->blue = 0;
@@ -55,6 +58,7 @@ int parse_color(const char* color_str, struct color* result)
             case 'o':
                 if (strcmp(color_str, "orange") == 0)
                 {
+                   result->profile = orange;
                    result->red = 255;
                    result->green = 100;
                    result->blue = 0;
@@ -62,6 +66,7 @@ int parse_color(const char* color_str, struct color* result)
                 }
                 else if (strcmp(color_str, "off") == 0)
                 {
+                    result->profile = none;
                     result->red = 0;
                     result->green = 0;
                     result->blue = 0;
@@ -72,6 +77,7 @@ int parse_color(const char* color_str, struct color* result)
             case 'p':
                 if (strcmp(color_str, "purple") == 0)
                 {
+                    result->profile = purple;
                     result->red = 255;
                     result->green = 0;
                     result->blue = 255;
@@ -82,6 +88,7 @@ int parse_color(const char* color_str, struct color* result)
             case 'r':
                 if (strcmp(color_str, "red") == 0)
                 {
+                    result->profile = red;
                     result->red = 255;
                     result->green = 0;
                     result->blue = 0;
@@ -92,6 +99,7 @@ int parse_color(const char* color_str, struct color* result)
             case 's':
                 if (strcmp(color_str, "sky") == 0)
                 {
+                    result->profile = sky;
                     result->red = 0;
                     result->green = 255;
                     result->blue = 255;
@@ -102,6 +110,7 @@ int parse_color(const char* color_str, struct color* result)
             case 'w':
                 if (strcmp(color_str, "white") == 0)
                 {
+                    result->profile = white;
                     result->red = 255;
                     result->green = 255;
                     result->blue = 255;
@@ -112,6 +121,7 @@ int parse_color(const char* color_str, struct color* result)
             case 'y':
                 if (strcmp(color_str, "yellow") == 0)
                 {
+                    result->profile = yellow;
                     result->red = 255;
                     result->green = 255;
                     result->blue = 0;
@@ -121,6 +131,8 @@ int parse_color(const char* color_str, struct color* result)
 
             case '[': //[red;green;blue]
                 {
+                    result->profile = custom;
+
                     size_t length = strlen(color_str);
                     char* color_rgb = (char*)malloc(length * sizeof(char));
                     strcpy(color_rgb, &color_str[1]); //copy the string and skip the '['-sign
@@ -157,6 +169,8 @@ int parse_color(const char* color_str, struct color* result)
             case '0': //color in hex format
                 if (strlen(color_str) == 8  && color_str[1] == 'x')
                 {
+                    result->profile = custom;
+
                     int red1 = parse_hex(color_str[2]);
                     if (red1 >= 0)
                     {
@@ -222,6 +236,11 @@ enum brightness parse_brightness(const char* brightness_str)
             case 'o':
                 if (strcmp(brightness_str, "off") == 0)
                     ret = off;
+                break;
+
+            case 'r':
+                if (strcmp(brightness_str, "rgb") == 0)
+                    ret = rgb;
                 break;
         }
     }
@@ -298,51 +317,38 @@ hid_device* open_keyboard()
  * @brief sets the selected color for a specified region (the colors will only be set as soon as set_mode() is called in advance)
  * @param dev the hid device
  * @param color the color value
- * @param region the region where the color should be set_color
- * @param brightness the selected brightness
- * @returns the acutal number of bytes written, -1 on error
+ * @param region the region where the color should be set
+ * @param brightness the selected brightness (note that it also defines the kind of command that is send to the keyboard)
+ * @returns the actual number of bytes written, -1 on error
  */
 int set_color(hid_device* dev, struct color color, enum region region, enum brightness brightness)
 {
-    int ret;
-    if (region == left || region == middle || region == right || region == logo || region == front_left || region == front_right || region == mouse)
+    int ret = -1;
+    if ((region == left || region == middle || region == right || region == logo || region == front_left || region == front_right || region == mouse) && //valid region
+        (brightness == rgb || brightness == off || color.profile != custom)) //explicit brightness is only valid for predefined colors (i.e. rgb-selection mixed with brightness makes little sense)
     {
-        if (brightness == medium || brightness == low || brightness == off)
-        {
-            double factor = brightness / (-3.0) + 1.0;
-            color.red   = (byte)(factor * color.red);
-            color.green = (byte)(factor * color.green);
-            color.blue  = (byte)(factor * color.blue);
-            //printf("Color = [%i, %i, %i]\n", color.red, color.green, color.blue);
-        }
-
         byte buffer[8];
         buffer[0] = 1;
         buffer[1] = 2;
-        buffer[2] = 64; // rgb
         buffer[3] = (byte)region;
-        buffer[4] = color.red;
-        buffer[5] = color.green;
-        buffer[6] = color.blue;
-        buffer[7] = 236; // EOR (end of request)
+        buffer[7] = 236; //EOR (end of request)
+
+        if (brightness == rgb) //full rgb selection -> rgb-command
+        {
+            buffer[2] = 64; //rgb
+            buffer[4] = color.red;
+            buffer[5] = color.green;
+            buffer[6] = color.blue;
+        }
+        else //predefined color with explicit brightness -> set-command
+        {
+            buffer[2] = 66; //set
+            buffer[4] = (byte)color.profile;
+            buffer[5] = (byte)brightness;
+            buffer[6] = 0;
+        }
 
         ret = hid_send_feature_report(dev, buffer, 8);
-
-        // alternative color setting, slightly simplier but allows less configuration options:
-        //enum color { none=0, red=1, orange=2, yellow=3, green=4, sky=5, blue=6, purple=7, white=8 }
-        //byte buffer[8];
-        //buffer[0] = 1;
-        //buffer[1] = 2;
-        //buffer[2] = 66; // set
-        //buffer[3] = (byte)region;
-        //buffer[4] = (byte)color;
-        //buffer[5] = (byte)brightness;
-        //buffer[6] = 0;
-        //buffer[7] = 236; // EOR (end of request)
-    }
-    else
-    {
-        ret = -1;
     }
     return ret;
 }
@@ -351,25 +357,25 @@ int set_color(hid_device* dev, struct color color, enum region region, enum brig
  * @brief sets the selected mode
  * @param dev the hid device
  * @param mode the selected mode
- * @returns the acutal number of bytes written, -1 on error
+ * @returns the actual number of bytes written, -1 on error
  */
 int set_mode(hid_device* dev, enum mode mode)
 {
-    // check for a valid value, otherwise use normal mode
-    if (mode != normal  && mode != gaming && mode != breathe && mode != demo && mode != wave)
-        return -1;
-
-    byte buffer[8];
-    buffer[0] = 1;
-    buffer[1] = 2;
-    buffer[2] = 65; // commit
-    buffer[3] = (byte)mode; // set hardware mode
-    buffer[4] = 0;
-    buffer[5] = 0;
-    buffer[6] = 0;
-    buffer[7] = 236; // EOR (end of request)
-
-    return hid_send_feature_report(dev, buffer, 8);
+    int ret = -1;
+    if (mode == normal || mode == gaming || mode == breathe || mode == demo || mode != wave) //check for a valid mode
+    {
+        byte buffer[8];
+        buffer[0] = 1;
+        buffer[1] = 2;
+        buffer[2] = 65; //commit
+        buffer[3] = (byte)mode; //set hardware mode
+        buffer[4] = 0;
+        buffer[5] = 0;
+        buffer[6] = 0;
+        buffer[7] = 236; //EOR (end of request)
+        ret = hid_send_feature_report(dev, buffer, 8);
+    }
+    return ret;
 }
 
 /**
@@ -379,41 +385,9 @@ int set_mode(hid_device* dev, enum mode mode)
  */
 int parse_hex(unsigned char hex)
 {
-    int ret;
-         if (hex >= '0' && hex <='9')  ret = hex - '0';
+    int ret = -1;
+         if (hex >= '0' && hex <= '9') ret = hex - '0';
     else if (hex >= 'A' && hex <= 'F') ret = 10 + hex - 'A';
     else if (hex >= 'a' && hex <= 'f') ret = 10 + hex - 'a';
-    else                               ret = -1;
     return ret;
-}
-
-/**
- * @brief iterates through all found HID devices
- */
-void enumerate_hid()
-{
-    struct hid_device_info* enumerate = hid_enumerate(0,0);
-
-    if (enumerate != NULL)
-    {
-        struct hid_device_info* dev = enumerate;
-        while (dev != NULL)
-        {
-            printf("Device: %S\n", dev->product_string);
-            printf("    Device Vendor ID:        %i\n", dev->vendor_id);
-            printf("    Device Product ID:       %i\n", dev->product_id);
-            printf("    Device Serial Number:    %S\n", dev->serial_number);
-            printf("    Device Manufacturer:     %S\n", dev->manufacturer_string);
-            printf("    Device Path:             %s\n", dev->path);
-            printf("    Device Interface Number: %i\n", dev->interface_number);
-            printf("    Device Release Number:   %d\n", dev->release_number);
-            printf("\n");
-            dev = dev->next;
-        }
-        hid_free_enumeration(enumerate);
-    }
-    else
-    {
-        printf("No HID device found!\n");
-    }
 }

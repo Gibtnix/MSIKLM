@@ -17,17 +17,35 @@
 typedef unsigned char byte;
 
 /**
- * @brief color struct
+ * @brief color profile enum: the color profile either defines a default color or indicates a custom selection
+ */
+enum color_profile
+{
+    none   = 0,
+    red    = 1,
+    orange = 2,
+    yellow = 3,
+    green  = 4,
+    sky    = 5,
+    blue   = 6,
+    purple = 7,
+    white  = 8,
+    custom = 64 //custom rgb-color selection (64 defines the keyboard's rgb-command)
+};
+
+/**
+ * @brief color struct: each color is represented by a profile value and its respective rgb-values
  */
 struct color
 {
+    enum color_profile profile;
     byte red;
     byte green;
     byte blue;
 };
 
 /**
- * @brief region enum
+ * @brief region enum: each value refers to a region whose color could be set
  */
 enum region
 {
@@ -41,14 +59,15 @@ enum region
 };
 
 /**
- * @brief brightness enum
+ * @brief brightness enum: the brightness is either defined by the rgb selection or one of four predefined values
  */
 enum brightness
 {
-    off    = 3,
-    low    = 2,
+    high   = 0,
     medium = 1,
-    high   = 0
+    low    = 2,
+    off    = 3,
+    rgb    = custom //brightness defined by custom rgb-color selection
 };
 
 /**
@@ -102,9 +121,9 @@ hid_device* open_keyboard();
  * @brief sets the selected color for a specified region (the colors will only be set as soon as set_mode() is called in advance)
  * @param dev the hid device
  * @param color the color value
- * @param region the region where the color should be set_color
- * @param brightness the selected brightness
- * @returns the acutal number of bytes written, -1 on error
+ * @param region the region where the color should be set
+ * @param brightness the selected brightness (note that it also defines the kind of command that is send to the keyboard)
+ * @returns the actual number of bytes written, -1 on error
  */
 int set_color(hid_device* dev, struct color color, enum region region, enum brightness brightness);
 
@@ -112,7 +131,7 @@ int set_color(hid_device* dev, struct color color, enum region region, enum brig
  * @brief sets the selected mode
  * @param dev the hid device
  * @param mode the selected mode
- * @returns the acutal number of bytes written, -1 on error
+ * @returns the actual number of bytes written, -1 on error
  */
 int set_mode(hid_device* dev, enum mode mode);
 
@@ -122,10 +141,5 @@ int set_mode(hid_device* dev, enum mode mode);
  * @returns the parsed integer value
  */
 int parse_hex(unsigned char hex);
-
-/**
- * @brief iterates through all found HID devices
- */
-void enumerate_hid();
 
 #endif //MSIKLM_H

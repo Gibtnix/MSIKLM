@@ -62,23 +62,26 @@ void show_help()
            KMAG
             "<color> OR <color_left>,<color_middle>[,<color_right>,<color_logo>,<color_front_left>,<color_front_right>,<color_mouse>]\n"
            KDEFAULT
-            "    set a color for the respective zone at full brightness;\n"
+            "    sets a color for the respective zone at full brightness;\n"
             "    if multiple values are supplied, they have to be separated with commas without spaces,\n"
             "    e.g. red or red,green,blue are valid while red,green, blue or red, green, blue are not\n"
             "    it is valid to supply three times the same value, but the result will be the same as supplying it only once\n"
             "    valid predefined colors are: none, off (equivalent to none), red, orange, yellow, green, sky, blue, purple, white\n"
             "    additionally it is possible to supply a color in full RGB notation; in this case it has to be supplied either in the format\n"
-            "    [red;green;blue] where the brackets are required and 'red', 'green' and 'blue'' are the respective color values (range 0 to 255)\n"
+            "    [red;green;blue] where the brackets are required and 'red', 'green' and 'blue' are the respective color values (range 0 to 255)\n"
             "    or in hex code (0x000000 to 0xFFFFFF) notations where the respective values have to be selected accordingly\n"
             "    it is also supported to mix the predefined colors with explicit definitions\n"
             "    please note that it might be necessary to put quotation marks around explicit color definitions,\n"
             "    otherwise the argument might not be properly processed by the shell; cf. Readme.md for more detailed information\n"
+            "    remark: to disable the illumination, use off or none as global color\n"
             "\n"
            KMAG
             "<colors> <brightness>\n"
            KDEFAULT
-            "    set the respective zone's color(s) at the specified brightness; valid brightnesses are: low, medium, high\n"
-            "    remark: to disable the illumination, use off or none as global color\n"
+            "    additionally to the color, also a brightness can be specified for all zones where a predefined color is used;"
+            "    thus, the respective brightness selection will be ignored for all zones where a custom rgb selection has been given"
+            "    so valid brightnesses are 'low', 'medium', 'high' and 'rgb' where 'rgb' is the default value"
+            "    important: as soon as a brightness has been set, a different command is used, so it might solve problems to explicitly define it"
             "\n"
            KMAG
             "<colors> <mode>\n"
@@ -99,6 +102,69 @@ void show_help()
 }
 
 /**
+ * @brief this function is called whenever parsing of an argument failed in some way and prints a respective error message
+ * @param value the string that could not be parsed (might be null)
+ * @param expected_type string that informs about the expected input type (might be null)
+ */
+void on_parse_error(const char* value, const char* expected_type)
+{
+    if (value == NULL)
+        printf(KRED"Invalid arguments supplied; use 'msiklm help' to show a list of valid arguments\n"KDEFAULT);
+    else if (expected_type == NULL)
+        printf(KRED"Invalid argument '%s' - use 'msiklm help' to list an overview of valid commands\n"KDEFAULT, value);
+    else
+        printf(KRED"Invalid %s argument '%s' - use 'msiklm help' to list an overview of valid commands\n"KDEFAULT, expected_type, value);
+}
+
+/**
+ * @brief similar to parse_brightness() but additionally checks if the brightness is valid for the current color selection
+ * @param brightness_str the brightness value as a string
+ * @param with_rgb explicit brightnesses other than 'rgb' are only valid if there is no explicit rgb-color defined
+ * @returns the parsed brightness value, -1 if the string is not a valid brightness or -2 if its only invalid for the current color selection
+ */
+enum brightness parse_check_brightness(const char* brightness_str, bool with_rgb)
+{
+    enum brightness br = parse_brightness(brightness_str);
+    if ((int)br >= 0 && with_rgb && (br == high || br == medium || br == low))
+    {
+        on_parse_error(brightness_str, "rgb-color brightness");
+        br = -2;
+    }
+    return br;
+}
+
+/**
+ * @brief iterates through all found HID devices and prints some output about them
+ */
+void enumerate_hid()
+{
+    struct hid_device_info* enumerate = hid_enumerate(0,0);
+
+    if (enumerate != NULL)
+    {
+        struct hid_device_info* dev = enumerate;
+        while (dev != NULL)
+        {
+            printf("Device: %S\n", dev->product_string);
+            printf("    Device Vendor ID:        %i\n", dev->vendor_id);
+            printf("    Device Product ID:       %i\n", dev->product_id);
+            printf("    Device Serial Number:    %S\n", dev->serial_number);
+            printf("    Device Manufacturer:     %S\n", dev->manufacturer_string);
+            printf("    Device Path:             %s\n", dev->path);
+            printf("    Device Interface Number: %i\n", dev->interface_number);
+            printf("    Device Release Number:   %d\n", dev->release_number);
+            printf("\n");
+            dev = dev->next;
+        }
+        hid_free_enumeration(enumerate);
+    }
+    else
+    {
+        printf("No HID device found!\n");
+    }
+}
+
+/**
  * @brief application's entry point
  * @param argc number of command line arguments
  * @param argv command line argument array; the first value is always the program's name
@@ -106,9 +172,10 @@ void show_help()
  */
 int main(int argc, char** argv)
 {
-    //the color values (at most 7); num_regions tracks the actual number of parsed colors (i.e. regions to set)
+    //the color values (at most 7); num_regions tracks the actual number of parsed colors (i.e. regions to set) while with_rgb indicates if there is any rgb-color used
     struct color colors[7];
     int num_regions = 0;
+    bool with_rgb = false;
     int ret = argc > 1 ? 0 : -1;
 
     //if colors are supplied, they are always the first argument, so try to parse them
@@ -126,6 +193,8 @@ int main(int argc, char** argv)
             ret = parse_color(color_str, &(colors[num_regions]));
             if (ret == 0 && num_regions < 7)
             {
+                if (colors[num_regions].profile == custom)
+                    with_rgb = true;
                 ++num_regions;
                 color_str = strtok_r(NULL, ",", &saved_ptr);
             }
@@ -144,17 +213,13 @@ int main(int argc, char** argv)
     }
 
     //the brightness and the mode; initialize them according to the parsed command line arguments
-    enum brightness br = ret == 0 ? high : -1;
+    enum brightness br = ret == 0 ? rgb : -1;
     enum mode md = ret == 0 ? normal : -1;
 
     //it holds: if ret == 0, the num_regions color values are all valid (and will be set) or brithness and mode are -1 (colors will not be modified, only maybe the mode)
 
     switch (argc)
     {
-        case 1:
-            printf("No arguments supplied; use 'msiklm help' to show a list of valid arguments\n");
-            break;
-
         case 2:
             // only one command line argument; valid values are:
             //  '<color>' -> set the respective color(s)
@@ -204,7 +269,7 @@ int main(int argc, char** argv)
                     }
 
                     if (ret != 0)
-                        printf("Invalid argument '%s' - use 'msiklm help' to list an overview of valid commands\n", argv[1]);
+                        on_parse_error(argv[1], NULL);
                 }
             }
             break;
@@ -216,12 +281,12 @@ int main(int argc, char** argv)
 
             if (ret == 0)
             {
-                enum brightness b = parse_brightness(argv[2]);
+                enum brightness b = parse_check_brightness(argv[2], with_rgb);
                 if ((int)b >= 0)
                 {
                     br = b;
                 }
-                else
+                else if ((int)b >= -1)
                 {
                     enum mode m = parse_mode(argv[2]);
                     if ((int)m >= 0)
@@ -230,14 +295,18 @@ int main(int argc, char** argv)
                     }
                     else
                     {
-                        printf("Invalid brightness / mode argument '%s' - use 'msiklm help' to list an overview of valid commands\n", argv[2]);
+                        on_parse_error(argv[2], "brightness / mode");
                         ret = -1;
                     }
+                }
+                else
+                {
+                    ret = -1;
                 }
             }
             else
             {
-                printf("Invalid color argument '%s' - use 'msiklm help' to list an overview of valid commands\n", argv[1]);
+                on_parse_error(argv[1], "color");
                 ret = -1;
             }
             break;
@@ -247,31 +316,33 @@ int main(int argc, char** argv)
 
             if (ret == 0)
             {
-                br = parse_brightness(argv[2]);
+                br = parse_check_brightness(argv[2], with_rgb);
                 if ((int)br >= 0)
                 {
                     md = parse_mode(argv[3]);
                     if ((int)md < 0)
                     {
-                        printf("Invalid mode argument '%s' - use 'msiklm help' to list an overview of valid commands\n", argv[3]);
+                        on_parse_error(argv[3], "mode");
                         ret = -1;
                     }
                 }
                 else
                 {
-                    printf("Invalid brightness argument '%s' - use 'msiklm help' to list an overview of valid commands\n", argv[2]);
+                    if ((int)br >= -1)
+                        on_parse_error(argv[2], "brightness");
                     ret = -1;
                 }
             }
             else
             {
-                printf("Invalid color argument '%s' - use 'msiklm help' to list an overview of valid commands\n", argv[1]);
+                on_parse_error(argv[1], "color");
                 ret = -1;
             }
             break;
 
         default:
-            printf("Invalid arguments supplied; use 'msiklm help' to show a list of valid arguments\n");
+            // too many or nor command line arguments
+            on_parse_error(NULL, NULL);
             break;
     }
 

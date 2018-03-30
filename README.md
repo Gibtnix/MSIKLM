@@ -79,7 +79,7 @@ in an error. Here is an overview over the valid commands:
 |sudo msiklm \<color\>                                         | either a predefined color or arbitrary RGB values ([R;G;B] or hex code), cf. explanation below | sudo msiklm green                    |
 |sudo msiklm \<color1\>[,\<color2\>,\<color3\>,\<color4\>,...] | same as single color (important: no space between the colors!), cf. explanation below          | sudo msiklm green,blue,red           |
 |sudo msiklm \<mode\>                                          | normal, gaming, breathe, demo, wave                                                            | sudo msiklm wave                     |
-|sudo msiklm \<color\> \<brightness\>                          | color as above, brightness can be off, low, medium, high                                       | sudo msiklm green high               |
+|sudo msiklm \<color\> \<brightness\>                          | color as above, brightness can be off, low, medium, high, rgb                                  | sudo msiklm green high               |
 |sudo msiklm \<color\> \<mode\>                                | same as above                                                                                  | sudo msiklm green,blue,red wave      |
 |sudo msiklm \<color\> \<brightness\> \<mode\>                 | same as above                                                                                  | sudo msiklm green,blue,red high wave |
 
@@ -99,6 +99,18 @@ to be selected accordingly. It is possible to mix these explicit color definitio
 ones, e.g. you can select a custom color for the left zone and use predefined for the others by
 supplying [R;G;B],green,blue. Please note that it might be necessary to put quotation marks around
 explicit color definitions, otherwise the argument might not be properly processed by the shell.
+
+Further the brightness argument can only be set to low, medium and high if _no_ custom rgb-color is
+given, while not supplying it is equivalent to supply 'rgb'. The reason for this is two-fold: First
+it makes little to no sense to explicitly define the color and to give a brightness as well, second
+the brightness can be used to switch to a different way of communicating with the keyboard. Besides
+technical details (see function set_color() in msiklm.c fur further details if you are interested
+in them), it improves the compatibility with different devices, however the brightness has to be
+explicitly given. For example 'sudo msiklm green' will set the color green using its rgb-values
+(i.e. red=0, green=255, blue=0 or 0x00FF00 in hex code notation) while 'sudo msiklm green high'
+does basically the same but using a different way which might be supported by keyboards that do not
+support full rgb-color selection. As I do not have a bunch of different notebook available to test
+them, I cannot say which command will work at which keyboard.
 
 Additionally, there are three extra commands that might be useful if something does not work:
 
@@ -130,13 +142,6 @@ Finally the autostart can be disabled by running
     ./autostart.sh --disable
 
 which will disable the autostart by removing the rule file.
-
-Important remark: If you already used a previous version of MSIKLM, please undo the previous
-autostart functionality by removing MSIKLM calls from 'etc/rc.local' as well as simply delete
-MSIKLM wakeup scripts from the paths:
-
-    /lib/systemd/system-sleep/
-    /usr/lib/pm-utils/sleep.d/
 
 
 # UNINSTALLATION

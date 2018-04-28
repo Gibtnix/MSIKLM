@@ -352,9 +352,15 @@ int main(int argc, char** argv)
 
         if (dev != NULL)
         {
-            for (int i=0; i<num_regions && ret == 0; ++i)
-                if (set_color(dev, colors[i], i+1, br) <= 0)
-                    ret = -1;
+            if (num_regions > 0)
+            {
+                if (md == gaming)
+                    num_regions=1;
+
+                for (int i=0; i<num_regions && ret == 0; ++i)
+                    if (set_color(dev, colors[i], i+1, br) <= 0)
+                        ret = -1;
+            }
 
             if (ret == 0 && set_mode(dev, md) <= 0)
                 ret = -1;

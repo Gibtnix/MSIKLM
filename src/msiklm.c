@@ -362,7 +362,7 @@ int set_color(hid_device* dev, struct color color, enum region region, enum brig
 int set_mode(hid_device* dev, enum mode mode)
 {
     int ret = -1;
-    if (mode == normal || mode == gaming || mode == breathe || mode == demo || mode != wave) //check for a valid mode
+    if (mode == normal || mode == gaming || mode == breathe || mode == demo || mode == wave) //check for a valid mode
     {
         byte buffer[8];
         buffer[0] = 1;

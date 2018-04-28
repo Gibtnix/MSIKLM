@@ -1,7 +1,7 @@
 # GENERAL
 
 The MSI Keyboard Light Manager (MSIKLM) is an easy-to-use tool that allows to configure the
-SteelSeries keyboards of MSI gaming notebooks with Linux in almost the same way as the
+SteelSeries keyboards of MSI gaming notebooks with Linux / Unix in almost the same way as the
 SteelSeries Engine can do using Windows.
 
 
@@ -16,8 +16,9 @@ ones. These are:
  * LIBUSB  - MSIKLM needs to communicate with the keyboard, for this LIBUSB is required
 
 Besides there are no others, no Qt, no Java, not even a C++ compiler is required. To install the
-program, there is an installation script 'install.sh' which can be run by opening the respective
-folder in a terminal and typing
+program on any Debian-based Linux distribution (for instance any ubuntu-based one), there is an
+installation script 'install.sh' which can be run by opening the respective folder in a terminal
+and typing
 
     ./install.sh
 
@@ -25,9 +26,9 @@ or if there are any problems you can try
 
     bash install.sh
 
-as well which will most certainly will work on most Linux distributions. This script will do the
-following steps, if you do not want to use the installation script for some reason, you can use
-the manual commands instead:
+as well which most certainly will work on most Debian-based distributions. This script will do the
+following steps, if you do not want to use the installation script for some reason, you can use the
+manual commands instead:
 
  * installation of the dependencies
    ```
@@ -61,13 +62,11 @@ non-root).
 
 ## Distribution package
 
-Currently, the only Linux distribution providing an install method is Arch Linux, via the AUR repository
+Currently, there are also the following packages available to install MSIKLM:
 
- * Arch Linux : https://aur.archlinux.org/packages/msiklm-git/
- 
-A FreeBSD package is also available, via the FreeBSD package repository
+ * Arch Linux via the AUR repository : https://aur.archlinux.org/packages/msiklm-git/
 
- * FreeBSD : https://www.freshports.org/sysutils/msiklm/
+ * FreeBSD via the FreeBSD package repository : https://www.freshports.org/sysutils/msiklm/
    ```
    pkg install msiklm
    ```

@@ -204,19 +204,13 @@ int main(int argc, char** argv)
             }
         }
         free(color_arg);
-
-        if (ret == 0 && num_regions == 1) //special case: one color will be used for the first three regions
-        {
-            colors[2] = colors[1] = colors[0];
-            num_regions = 3;
-        }
     }
 
     //the brightness and the mode; initialize them according to the parsed command line arguments
     enum brightness br = ret == 0 ? rgb : -1;
     enum mode md = ret == 0 ? normal : -1;
 
-    //it holds: if ret == 0, the num_regions color values are all valid (and will be set) or brithness and mode are -1 (colors will not be modified, only maybe the mode)
+    //it holds: if ret == 0, the num_regions color values are all valid (and will be set) or brightness and mode are -1 (colors will not be modified, only maybe the mode)
 
     switch (argc)
     {
@@ -352,15 +346,15 @@ int main(int argc, char** argv)
 
         if (dev != NULL)
         {
-            if (num_regions > 0)
+            if (num_regions == 1 && md != gaming) //special case: one color will be used for the first three regions (gaming mode requires only one region)
             {
-                if (md == gaming)
-                    num_regions=1;
-
-                for (int i=0; i<num_regions && ret == 0; ++i)
-                    if (set_color(dev, colors[i], i+1, br) <= 0)
-                        ret = -1;
+                colors[2] = colors[1] = colors[0];
+                num_regions = 3;
             }
+
+            for (int i=0; i<num_regions && ret == 0; ++i)
+                if (set_color(dev, colors[i], i+1, br) <= 0)
+                    ret = -1;
 
             if (ret == 0 && set_mode(dev, md) <= 0)
                 ret = -1;

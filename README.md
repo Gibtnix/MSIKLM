@@ -64,6 +64,13 @@ non-root).
 Currently, the only Linux distribution providing an install method is Arch Linux, via the AUR repository
 
  * Arch Linux : https://aur.archlinux.org/packages/msiklm-git/
+ 
+A FreeBSD package is also available, via the FreeBSD package repository
+
+ * FreeBSD : https://www.freshports.org/sysutils/msiklm/
+   ```
+   pkg install msiklm
+   ```
 
 
 # USABILITY

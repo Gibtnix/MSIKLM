@@ -78,10 +78,10 @@ void show_help()
            KMAG
             "<colors> <brightness>\n"
            KDEFAULT
-            "    additionally to the color, also a brightness can be specified for all zones where a predefined color is used;"
-            "    thus, the respective brightness selection will be ignored for all zones where a custom rgb selection has been given"
-            "    so valid brightnesses are 'low', 'medium', 'high' and 'rgb' where 'rgb' is the default value"
-            "    important: as soon as a brightness has been set, a different command is used, so it might solve problems to explicitly define it"
+            "    additionally to the color, also a brightness can be specified for all zones where a predefined color is used;\n"
+            "    thus, the respective brightness selection will be ignored for all zones where a custom rgb selection has been given\n"
+            "    so valid brightnesses are 'low', 'medium', 'high' and 'rgb' where 'rgb' is the default value\n"
+            "    important: as soon as a brightness has been set, a different command is used, so it might solve problems to explicitly define it\n"
             "\n"
            KMAG
             "<colors> <mode>\n"

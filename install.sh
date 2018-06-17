@@ -27,7 +27,6 @@ sleep 2
 
 # compile
 if (make); then
-    make clean
     echo "Compiling finished successfully"
     sleep 2
 else
@@ -37,6 +36,7 @@ fi
 
 # install 'msiklm' to '/usr/local/bin/msiklm' which also makes it callable via the msiklm command
 if (sudo make install); then
+    make delete
     echo "Installation of 'msiklm' finished successfully"
     sleep 2
 else

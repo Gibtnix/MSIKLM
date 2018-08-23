@@ -343,7 +343,7 @@ int set_color(hid_device* dev, struct color color, enum region region, enum brig
         else //predefined color with explicit brightness -> set-command
         {
             buffer[2] = 66; //set
-            buffer[4] = (byte)color.profile;
+            buffer[4] = brightness != off ? (byte)color.profile : 0;
             buffer[5] = (byte)brightness;
             buffer[6] = 0;
         }

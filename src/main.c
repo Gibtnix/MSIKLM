@@ -335,7 +335,7 @@ int main(int argc, char** argv)
             break;
 
         default:
-            // too many or nor command line arguments
+            // too many or no command line arguments
             on_parse_error(NULL, NULL);
             break;
     }

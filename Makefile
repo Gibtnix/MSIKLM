@@ -3,48 +3,54 @@
 #############################################################################
 
 ####### Compiler, tools and options
-
+TARGET        = msiklm
 CC            = gcc
-FLAGS         = -m64 -pipe -O3 -Wall -W -D_REENTRANT
-LINK          = gcc
+CFLAGS        = -m64 -pipe -O3 -Wall -W -D_REENTRANT
 LFLAGS        = -m64 -Wl,-O3
 LIBS          = -lhidapi-libusb
 DEL_FILE      = rm -f
-
-
-####### Files
-
-SRCPATH       = ./src/
-HEADERS       = $(SRCPATH)msiklm.h
-SOURCES       = $(SRCPATH)main.c $(SRCPATH)msiklm.c
-OBJECTS       = main.o msiklm.o
-TARGET        = msiklm
 INSTALLPREFIX = /usr/local/bin
 
+####### Files
+INC_DIR       = src
+INC_FILE      = msiklm.h
+
+SRC_DIR       = src
+SRC_FILE      = main.c \
+                msiklm.c
+
+OBJ_DIR       = .obj
+OBJ_FILE      = $(SRC_FILE:.c=.o)
+
+CRT_DIR       = .
+
+SRC           = $(addprefix $(SRC_DIR)/,$(SRC_FILE))
+INC           = $(addprefix $(INC_DIR)/,$(INC_FILE))
+OBJ           = $(addprefix $(OBJ_DIR)/,$(OBJ_FILE))
+CRT           = $(addprefix $(OBJ_DIR)/,$(CRT_DIR))
 
 ####### Build rules
 
-.PHONY: clean delete install
+all: $(TARGET)
 
-all: Makefile $(TARGET)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INC) Makefile
+	@mkdir -p $(CRT) 2> /dev/null || true
+	$(CC) $(CFLAGS) -c $< -o $@
 
-$(TARGET): $(HEADERS) $(OBJECTS)
-	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(LIBS)
+$(TARGET): $(OBJ)
+	$(CC) $(LFLAGS) -o $(TARGET) $(OBJ) $(LIBS)
 
 clean:
-	-$(DEL_FILE) $(OBJECTS)
+	$(DEL_FILE) $(OBJ)
+	$(DEL_FILE) -r $(OBJ_DIR)
 
 delete: clean
-	-$(DEL_FILE) $(TARGET)
+	$(DEL_FILE) $(TARGET)
 
 install: all
 	@cp -v $(TARGET) $(INSTALLPREFIX)/$(TARGET)
 	@chmod 755 $(INSTALLPREFIX)/$(TARGET)
 
-####### Compile
+re: delete all
 
-main.o: $(SRCPATH)main.c
-	$(CC) -c $(FLAGS) -o main.o $(SRCPATH)main.c
-
-msiklm.o: $(SRCPATH)msiklm.h $(SRCPATH)msiklm.c
-	$(CC) -c $(FLAGS) -o msiklm.o $(SRCPATH)msiklm.c
+.PHONY: all clean delete re

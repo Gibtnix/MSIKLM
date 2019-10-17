@@ -201,6 +201,42 @@ int parse_color(const char* color_str, struct color* result)
                     }
                 }
                 break;
+
+            case '#': // another hex format for color
+                if (strlen(color_str) == 7)
+                {
+                    result->profile = custom;
+
+                    int red1 = parse_hex(color_str[1]);
+                    if (red1 >= 0)
+                    {
+                        int red2 = parse_hex(color_str[2]);
+                        if (red2 >= 0)
+                        {
+                            result->red = 16 * red1 + red2;
+                            int green1 = parse_hex(color_str[3]);
+                            if (green1 >= 0)
+                            {
+                                int green2 = parse_hex(color_str[4]);
+                                if (green2 >= 0)
+                                {
+                                    result->green = 16 * green1 + green2;
+                                    int blue1 = parse_hex(color_str[5]);
+                                    if (blue1 >= 0)
+                                    {
+                                        int blue2 = parse_hex(color_str[6]);
+                                        if (blue2 >= 0)
+                                        {
+                                            result->blue = 16 * blue1 + blue2;
+                                            ret = 0;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
         }
     }
     return ret;

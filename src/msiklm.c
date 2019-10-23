@@ -202,7 +202,7 @@ int parse_color(const char* color_str, struct color* result)
                 }
                 break;
 
-            case '#': // another hex format for color
+            case '#': //another hex format for color
                 if (strlen(color_str) == 7)
                 {
                     result->profile = custom;

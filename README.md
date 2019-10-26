@@ -1,12 +1,12 @@
-# GENERAL
+# General
 
 The MSI Keyboard Light Manager (MSIKLM) is an easy-to-use tool that allows to configure the
 SteelSeries keyboards of MSI gaming notebooks with Linux / Unix in almost the same way as the
 SteelSeries Engine can do using Windows.
 
 
-# INSTALLATION & REQUIREMENTS
-## Manual installation
+# Installation & Requirements
+## Manual Installation
 
 I tried to keep the external dependencies to a minimum level, however there are some unavoidable
 ones. These are:
@@ -60,7 +60,7 @@ Whenever MSIKLM is used, it should always be run as root because otherwise, the 
 the keyboard is not possible, hence always use the sudo prefix (only 'msiklm help' will work as
 non-root).
 
-## Distribution package
+## Distribution Package
 
 Currently, there are also the following packages available to install MSIKLM:
 
@@ -72,7 +72,7 @@ Currently, there are also the following packages available to install MSIKLM:
    ```
 
 
-# USABILITY
+# Usability
 
 MSIKLM is a pure command line application, however its keyboard illumination control functionality
 is encapsulated such that it could easily be integrated into a graphical user interface. However,
@@ -125,7 +125,7 @@ Additionally, there are three extra commands that might be useful if something d
     sudo msiklm list    -> lists all found hid devices, this might be helpful if your keyboard is not detected by MSIKLM
 
 
-# AUTOSTART
+# Autostart
 
 An important additional feature is the optional autostart functionality since the keyboard will
 reset itself to its default color configuration whenever you reboot it or resume from standby.
@@ -134,7 +134,7 @@ choice. To do this, there is an extra script called 'autostart.sh' that can do t
 script registers MSIKLM to the udev service (more precisely it registers the keyboard to the udev
 service which calls MSIKLM as soon as the keyboard is detected) by creating a rule file:
 
-    /etc/udev/rules.d/99-msiklm.rules
+    /etc/udev/rules.d/90-msiklm.rules
 
 To create this file including your MSIKLM arguments of choice, run:
 
@@ -150,7 +150,7 @@ Finally the autostart can be disabled by running
 which will disable the autostart by removing the rule file.
 
 
-# UNINSTALLATION
+# Uninstallation
 
 MSIKLM also comes with an uninstallation script uninstall.sh which will remove the program file
 /usr/local/bin/msiklm as well as running ./autostart --disable, i.e. it disables the autostart.
@@ -159,7 +159,7 @@ If you want to use it, simply run:
     ./uninstall.sh
 
 
-# DEVELOPER INFORMATION
+# Developer Information
 
 The source code is split into three files:
 - Main application (`main.c`) that converts the input

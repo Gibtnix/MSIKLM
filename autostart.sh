@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # to enable the autostart, execute this script with your configuration of choice (same arguments as used for 'msiklm')
-# this script will create a file '/etc/udev/rules.d/99-msiklm.rules' to activate the respective configuration at startup or wakeup
+# this script will create a file '/etc/udev/rules.d/90-msiklm.rules' to activate the respective configuration at startup or wakeup
 # further, this script can also undo this by calling it with the '--disable' argument
 
 if [ $# -eq 0 ]; then
@@ -13,7 +13,7 @@ fi
 msiklm='/usr/local/bin/msiklm'
 
 # the rules file
-file='/etc/udev/rules.d/99-msiklm.rules'
+file='/etc/udev/rules.d/90-msiklm.rules'
 
 # autostart requires 'msiklm' to be installed
 if [ ! -f $msiklm ]; then

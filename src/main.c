@@ -176,7 +176,7 @@ int main(int argc, char** argv)
     struct color colors[7];
     int num_regions = 0;
     bool with_rgb = false;
-    int ret = argc > 1 ? 0 : -1;
+    int ret = argc > 1 ? hid_init() : -1;
 
     //if colors are supplied, they are always the first argument, so try to parse them
     if (ret == 0)

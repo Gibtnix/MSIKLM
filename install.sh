@@ -22,7 +22,7 @@ else
     exit 1
 fi
 
-echo "Compiling 'msiklm'..."
+echo "Compiling MSIKLM..."
 sleep 2
 
 # compile
@@ -37,20 +37,20 @@ fi
 # install 'msiklm' to '/usr/local/bin/msiklm' which also makes it callable via the msiklm command
 if (sudo make install); then
     make delete
-    echo "Installation of 'msiklm' finished successfully"
+    echo "Installation of MSIKLM finished successfully"
     sleep 2
 else
-    echo "Installation of 'msiklm' failed"
+    echo "Installation of MSIKLM failed"
     exit 1
 fi;
 
-echo "Testing 'msiklm'..."
+echo "Testing MSIKLM..."
 sleep 1
 
 if (sudo msiklm test); then
     echo "To configure the keyboard run 'msiklm' with your configuartion of choice, for a list of valid commands run 'msiklm help'."
     echo "If you want to enable the autostart, run 'autostart.sh' with your configuartion of choice, to uninstall 'msiklm' run 'uninstall.sh'."
-    echo "Thank you for using 'msiklm' and have fun with it! :-)"
+    echo "Thank you for using MSIKLM and have fun with it! :-)"
 else
-    echo "Testing of 'msiklm' failed"
+    echo "Testing of MSIKLM failed"
 fi

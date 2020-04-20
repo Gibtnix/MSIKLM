@@ -106,8 +106,8 @@ ones, e.g. you can select a custom color for the left zone and use predefined fo
 supplying [R;G;B],green,blue. Please note that it might be necessary to put quotation marks around
 explicit color definitions, otherwise the argument might not be properly processed by the shell.
 
-Further the brightness argument can only be set to low, medium and high if _no_ custom rgb-color is
-given, while not supplying it is equivalent to supply 'rgb'. The reason for this is two-fold: First
+Further, the brightness argument can only be set to low, medium and high if _no_ custom rgb-color is
+given, while not supplying it is equivalent to supply 'rgb'. The reason for this is two-fold: First,
 it makes little to no sense to explicitly define the color and to give a brightness as well, second
 the brightness can be used to switch to a different way of communicating with the keyboard. Besides
 technical details (see function set_color() in msiklm.c for further details if you are interested
@@ -143,7 +143,7 @@ To create this file including your MSIKLM arguments of choice, run:
 Try if everything works by first rebooting your system and then try a standby and wakeup. If
 everything works, we are done here. If not, please report an issue. :-)
 
-Finally the autostart can be disabled by running
+Finally, the autostart can be disabled by running
 
     ./autostart.sh --disable
 

@@ -17,6 +17,12 @@ sleep 2
 if (sudo apt install -y gcc make libhidapi-dev); then
     echo "Dependencies successfully installed"
     sleep 2
+elif (sudo dnf install -y gcc make hidapi-devel); then
+    echo "Dependencies successfully installed"
+    sleep 2
+elif (sudo yum install -y gcc make hidapi-devel); then
+    echo "Dependencies successfully installed"
+    sleep 2
 elif (sudo pacman -S --noconfirm gcc make hidapi); then
     echo "Dependencies successfully installed"
     sleep 2

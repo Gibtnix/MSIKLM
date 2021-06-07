@@ -183,27 +183,34 @@ int main(int argc, char** argv)
     {
         size_t length = strlen(argv[1]);
         char* color_arg = (char*)malloc((length+1) * sizeof(char));
-        strcpy(color_arg, argv[1]);
-        color_arg[length] = '\0';
-
-        char* saved_ptr = NULL;
-        const char* color_str = strtok_r(color_arg, ",", &saved_ptr);
-        while (color_str != NULL && ret == 0) //parse into next color slot as long as a color is available for parsing (color_str != NULL) and previous parsing succeeded (ret == 0)
+        if (color_arg != NULL)
         {
-            if (num_regions < 7 &&
-				!(ret = parse_color(color_str, &(colors[num_regions]))))
+            strcpy(color_arg, argv[1]);
+            color_arg[length] = '\0';
+
+            char* saved_ptr = NULL;
+            const char* color_str = strtok_r(color_arg, ",", &saved_ptr);
+            while (color_str != NULL && ret == 0) //parse into next color slot as long as a color is available for parsing (color_str != NULL) and previous parsing succeeded (ret == 0)
             {
-                if (colors[num_regions].profile == custom)
-                    with_rgb = true;
-                ++num_regions;
-                color_str = strtok_r(NULL, ",", &saved_ptr);
+                if (num_regions < 7 &&
+                    !(ret = parse_color(color_str, &(colors[num_regions]))))
+                {
+                    if (colors[num_regions].profile == custom)
+                        with_rgb = true;
+                    ++num_regions;
+                    color_str = strtok_r(NULL, ",", &saved_ptr);
+                }
+                else
+                {
+                    ret = -1;
+                }
             }
-            else
-            {
-                ret = -1;
-            }
+            free(color_arg);
         }
-        free(color_arg);
+        else
+        {
+            ret = -1;
+        }
     }
 
     //the brightness and the mode; initialize them according to the parsed command line arguments

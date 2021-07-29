@@ -26,6 +26,9 @@ elif (sudo yum install -y gcc make hidapi-devel); then
 elif (sudo pacman -S --noconfirm gcc make hidapi); then
     echo "Dependencies successfully installed"
     sleep 2
+elif (sudo zypper install gcc make libhidapi-devel); then
+    echo "Dependencies successfully installed"
+    sleep 2
 else
     echo "Dependencies could not be installed"
     exit 1

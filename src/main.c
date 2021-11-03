@@ -257,7 +257,7 @@ int main(int argc, char** argv)
                                     printf(KMAG
                                         "No compatible keyboard found!\n"
                                         KDEFAULT
-                                        "Check you're using sudo!");
+                                        "Check you're using sudo!\n");
                                 ret = 0;
                             }
                             break;
@@ -375,13 +375,12 @@ int main(int argc, char** argv)
             printf(KMAG
                 "No compatible keyboard found!\n"
                 KDEFAULT
-                "Check you're using sudo!");
+                "Check you're using sudo!\n");
             ret = -1;
         }
 
         if (hid_exit() != 0)
             ret = -1;
     }
-
     return ret;
 }

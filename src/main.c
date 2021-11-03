@@ -254,8 +254,10 @@ int main(int argc, char** argv)
                                 if (keyboard_found())
                                     printf(KMAG"Compatible keyboard found!\n"KDEFAULT);
                                 else
-                                    printf(KMAG"No compatible keyboard found!\n"KDEFAULT);
-
+                                    printf(KMAG
+                                        "No compatible keyboard found!\n"
+                                        KDEFAULT
+                                        "Check you're using sudo!");
                                 ret = 0;
                             }
                             break;
@@ -370,7 +372,10 @@ int main(int argc, char** argv)
         }
         else
         {
-            printf("No compatible keyboard found!\n");
+            printf(KMAG
+                "No compatible keyboard found!\n"
+                KDEFAULT
+                "Check you're using sudo!");
             ret = -1;
         }
 

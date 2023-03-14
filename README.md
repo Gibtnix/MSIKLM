@@ -17,7 +17,7 @@ ones. These are:
 
 Besides there are no others, no Qt, no Java, not even a C++ compiler is required. To install the
 program on any Debian-based Linux distribution (for instance any Ubuntu-based one), there is an
-installation script 'install.sh' which can be run by opening the respective folder in a terminal
+installation script `install.sh` which can be run by opening the respective folder in a terminal
 and typing
 
     ./install.sh
@@ -57,7 +57,7 @@ manual commands instead:
    ```
 
 Whenever MSIKLM is used, it should always be run as root because otherwise, the communication with
-the keyboard is not possible, hence always use the sudo prefix (only 'msiklm help' will work as
+the keyboard is not possible, hence always use the sudo prefix (only `msiklm help` will work as
 non-root).
 
 ## Distribution Package
@@ -163,7 +163,7 @@ the communication with the keyboard while it is controlled by the SteelSeries En
 An important additional feature is the optional autostart functionality since the keyboard will
 reset itself to its default color configuration whenever you reboot it or resume from standby.
 Hence, it is really useful to automatically reconfigure the keyboard to your configuration of
-choice. To do this, there is an extra script called 'autostart.sh' that can do this for you. This
+choice. To do this, there is an extra script called `autostart.sh` that can do this for you. This
 script registers MSIKLM to the udev service (more precisely it registers the keyboard to the udev
 service which calls MSIKLM as soon as the keyboard is detected) by creating a rule file:
 

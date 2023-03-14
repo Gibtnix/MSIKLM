@@ -5,7 +5,7 @@
 # further, this script can also undo this by calling it with the '--disable' argument
 
 if [ $# -eq 0 ]; then
-    echo "At least one argument is required"
+    echo 'At least one argument is required'
     exit 1
 fi
 
@@ -17,19 +17,19 @@ file='/etc/udev/rules.d/90-msiklm.rules'
 
 # autostart requires 'msiklm' to be installed
 if [ ! -f $msiklm ]; then
-    echo "MSI Keyboard Light Manager is not installed, hence no autostart possible"
+    echo 'MSI Keyboard Light Manager is not installed, hence no autostart possible'
     exit 1
 fi
 
-if [ "$1" != "--disable" ]; then
+if [ "$1" != '--disable' ]; then
     # activate the autostart
 
     if (sudo $msiklm $@); then
-        echo "Activating MSIKLM autostart..."
+        echo 'Activating MSIKLM autostart...'
         sleep 1
 
-        #redirection with '>' or '>>' takes place before 'sudo' is applied, hence not directly usable here
-        run="ACTION==\"add\", ATTRS{idVendor}==\"1770\", ATTRS{idProduct}==\"ff00\", RUN+=\"$msiklm " #trailing space since the arguments will be added
+        # redirection with '>' or '>>' takes place before 'sudo' is applied, hence not directly usable here
+        run="ACTION==\"add\", ATTRS{idVendor}==\"1770\", ATTRS{idProduct}==\"ff00\", RUN+=\"$msiklm " # trailing space since the arguments will be added
         for arg in "$@"; do
             run="$run '$arg'"
         done
@@ -48,11 +48,11 @@ if [ "$1" != "--disable" ]; then
 else
     # deactivate the autostart
 
-    echo "Deactivating MSIKLM autostart..."
+    echo 'Deactivating MSIKLM autostart...'
     sleep 1
 
     if [ -f $file ]; then
-        echo "Removing autostart rules file..."
+        echo 'Removing autostart rules file...'
         sleep 1
 
         sudo rm -v $file

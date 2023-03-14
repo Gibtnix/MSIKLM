@@ -16,7 +16,7 @@ ones. These are:
  * LIBUSB  - MSIKLM needs to communicate with the keyboard, for this LIBUSB is required
 
 Besides there are no others, no Qt, no Java, not even a C++ compiler is required. To install the
-program on any Debian-based Linux distribution (for instance any ubuntu-based one), there is an
+program on any Debian-based Linux distribution (for instance any Ubuntu-based one), there is an
 installation script 'install.sh' which can be run by opening the respective folder in a terminal
 and typing
 
@@ -106,16 +106,16 @@ ones, e.g. you can select a custom color for the left zone and use predefined fo
 supplying [R;G;B],green,blue. Please note that it might be necessary to put quotation marks around
 explicit color definitions, otherwise the argument might not be properly processed by the shell.
 
-Further, the brightness argument can only be set to low, medium and high if _no_ custom rgb-color is
+Further, the brightness argument can only be set to low, medium and high if _no_ custom rgb color is
 given, while not supplying it is equivalent to supply 'rgb'. The reason for this is two-fold: First,
 it makes little to no sense to explicitly define the color and to give a brightness as well, second
 the brightness can be used to switch to a different way of communicating with the keyboard. Besides
-technical details (see function set_color() in msiklm.c for further details if you are interested
-in them), it improves the compatibility with different devices, however the brightness has to be
-explicitly given. For example 'sudo msiklm green' will set the color green using its rgb-values
-(i.e. red=0, green=255, blue=0 or 0x00FF00 in hex code notation) while 'sudo msiklm green high'
+technical details (cf. `set_color()` in `msiklm.c` for further details if you are interested in
+them), it improves the compatibility with different devices, however the brightness has to be
+explicitly given. For example `sudo msiklm green` will set the color green using its rgb values
+(i.e. red=0, green=255, blue=0 or 0x00FF00 in hex code notation) while `sudo msiklm green high`
 does basically the same but using a different way which might be supported by keyboards that do not
-support full rgb-color selection. As I do not have a bunch of different notebook available to test
+support full rgb color selection. As I do not have a bunch of different notebook available to test
 them, I cannot say which command will work at which keyboard.
 
 Additionally, there are three extra commands that might be useful if something does not work:
@@ -123,6 +123,39 @@ Additionally, there are three extra commands that might be useful if something d
     msiklm help         -> shows the program's help
     sudo msiklm test    -> tests if a compatible keyboard is found
     sudo msiklm list    -> lists all found hid devices, this might be helpful if your keyboard is not detected by MSIKLM
+
+
+# Device Support
+
+Over the years, several keyboards were released out of which some are supported by msiklm while
+some others are not. As multiple issues were reported regarding device support, also a few aspects
+regarding device support are important. First, this project is a volunteer free-time / non-profit
+project that is not officially supported by MSI or SteelSeries. I started this project as there
+was no easy way to configure the keyboard whose command structure was known. Furthermore, two kinds
+of command structures were generally available while some keyboards seem to support only one, while
+some others might supported both. I have no official information whether certain keyboards are
+supported or not. As a rule of thumb, the chances are pretty high that it is if `sudo mskilm test`
+reports success. Otherwise, the chances are not that high. Still, the following things can be
+tested:
+
+- Run `sudo mskilm list` to list all USB devices.
+- If your keyboard is found, copy vendor ID and device ID.
+- Edit the file `msiklm.c` and replace the IDs in the line `hid_open(0x1770, 0xff00, 0);`,
+  i.e. `0x1770` by your vendor ID and `0xff00` by your product ID, respectively.
+- Recompile msiklm with your changes.
+- Run `sudo mskilm test` again.
+
+Now, your device should be detected. Still, this does not mean that it also supports the currently
+implemented commands. I do not know whether it does, the only way to find out is to test on your
+own, in particular on your own risk. However, I think the risk is rather low that a wrong command
+can cause any damage to the keyboard. Presumably, at most a power-off might be required if
+something is wrong with the command. If you want to test msiklm with your modification, run a
+command of choice. Here, supplying and not supplying the intensity argument is worth testing as
+this selects the command structure out of two possible options, as discussed before.
+
+If this does not work with your keyboard, the only way of using it in combination with msiklm is
+to identify the correct command structure. Most likely, this is possible by dumping and analyzing
+the communication with the keyboard while it is controlled by the SteelSeries Engine.
 
 
 # Autostart
